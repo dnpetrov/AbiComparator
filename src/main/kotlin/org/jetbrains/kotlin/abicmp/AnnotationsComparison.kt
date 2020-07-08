@@ -2,13 +2,13 @@ package org.jetbrains.kotlin.abicmp
 
 import org.objectweb.asm.Type
 
-val IGNORED_ANNOTATIONS = listOf("Lkotlin/Metadata;")
+val IGNORED_ANNOTATIONS = listOf("Lkotlin/Metadata;", "Lkotlin/coroutines/jvm/internal/DebugMetadata;")
 
 fun compareAnnotations(
         propertyName: String,
         annotations1: List<AnnotationEntry>,
         annotations2: List<AnnotationEntry>
-) : AnnotationsDiff? {
+) : ListDiff? {
     var hasDiff = false
 
     val anns1Sorted = annotations1.preprocessAnnotations()
@@ -69,7 +69,7 @@ fun compareAnnotations(
         }
     }
 
-    return if (hasDiff) AnnotationsDiff(propertyName, diff1, diff2) else null
+    return if (hasDiff) ListDiff(propertyName, diff1, diff2) else null
 }
 
 private fun List<AnnotationEntry>.preprocessAnnotations() =
@@ -86,6 +86,9 @@ private fun AnnotationEntry.fullString(): String =
             "@$desc"
         else
             "@$desc( ${values.joinToString { it.toValueString() }} )"
+
+private fun Pair<String, Any?>.toValueString(): String =
+        "$first: ${second.toValueString()}"
 
 private fun Any?.toValueString(): String =
         when (this) {

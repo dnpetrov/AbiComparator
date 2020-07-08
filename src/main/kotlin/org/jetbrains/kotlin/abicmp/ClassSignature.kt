@@ -3,12 +3,14 @@ package org.jetbrains.kotlin.abicmp
 
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
 import java.io.InputStream
 import kotlin.reflect.KProperty
 
 class ClassSignature(id: String) : Entity(id) {
     val methods = ArrayList<MethodSignature>()
+    val fields = ArrayList<FieldSignature>()
 }
 
 class ClassProperty<T>(index: Int, parse: (ClassNode) -> T) :
@@ -39,7 +41,9 @@ fun classAnnotationsProperty(parser: (ClassNode) -> List<Any?>?): ClassAnnotatio
 
 val ClassSignature.className by classProperty { it.name }
 val ClassSignature.flags by classProperty { it.access }
-val ClassSignature.signature by classProperty { it.signature }.withHtml { "<pre>${it.escapeHtml()}</pre>" }
+val ClassSignature.flagsBits by classProperty { it.access.toString(2) }
+val ClassSignature.flagsList by classProperty { it.access.classFlags() }
+val ClassSignature.signature by classProperty { it.signature }
 val ClassSignature.superClassName by classProperty { it.superName }
 val ClassSignature.superInterfaceNames by classProperty { it.interfaces.map { itf -> itf as String } }
 val ClassSignature.sourceFile by classProperty { it.sourceFile }
@@ -68,6 +72,7 @@ fun parseClassSignature(id: String, classNode: ClassNode): ClassSignature {
         classSignature.annotations[cap] = cap.parse(classNode)
     }
     classNode.methods.mapTo(classSignature.methods) { parseMethodSignature(it as MethodNode) }
+    classNode.fields.mapTo(classSignature.fields) { parseFieldSignature(it as FieldNode) }
     return classSignature
 }
 

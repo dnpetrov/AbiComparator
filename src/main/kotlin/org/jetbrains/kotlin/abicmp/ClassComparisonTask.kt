@@ -20,6 +20,7 @@ class ClassComparisonTask(
         compareClassProperties()
         compareClassAnnotations()
         compareMethods()
+        compareFields()
 
         if (classDiff.isNotEmpty()) {
             report.reportClassDiff(classDiff)
@@ -29,13 +30,10 @@ class ClassComparisonTask(
     private fun compareClassProperties() {
         for (classProperty in classProperties) {
             val valueToHtml = classProperty.valueToHtml as (Any?) -> String
-            val diff = classProperty.diff as (Any?, Any?) -> String?
-
             val val1 = cs1.data[classProperty]
             val val2 = cs2.data[classProperty]
-            val diffDetails = diff(val1, val2)
-            if (diffDetails != null) {
-                val propertyDiff = PropertyDiff(classProperty.name, valueToHtml(val1), valueToHtml(val2), diffDetails)
+            if (val1 != val2) {
+                val propertyDiff = PropertyDiff(classProperty.name, valueToHtml(val1), valueToHtml(val2))
                 classDiff.propertyDiffs.add(propertyDiff)
             }
         }
@@ -105,15 +103,133 @@ class ClassComparisonTask(
         }
 
         if (hasMethodsListDiff) {
-            classDiff.methodsListDiff = MethodsListDiff(methodsListDiff1, methodsListDiff2)
+            classDiff.structureDiffs.add(ListDiff("methods", methodsListDiff1, methodsListDiff2))
+        }
+    }
+
+    private fun compareFields() {
+        val fields1 = cs1.fields.preprocessFields()
+        val fields2 = cs2.fields.preprocessFields()
+        var i1 = 0
+        var i2 = 0
+        val size1 = fields1.size
+        val size2 = fields2.size
+        var hasFieldsListDiff = false
+        val fieldsListDiff1 = ArrayList<String>()
+        val fieldsListDiff2 = ArrayList<String>()
+        while (i1 < size1 || i2 < size2) {
+            when {
+                i1 < size1 && i2 < size2 -> {
+                    val f1 = fields1[i1]
+                    val f2 = fields2[i2]
+                    when {
+                        f1.id == f2.id -> {
+                            compareFields(f1, f2)
+                            ++i1
+                            ++i2
+                        }
+                        f1.id < f2.id -> {
+                            hasFieldsListDiff = true
+                            fieldsListDiff1.add(f1.fieldDiffLine())
+                            fieldsListDiff2.add("---")
+                            ++i1
+                        }
+                        else -> {
+                            hasFieldsListDiff = true
+                            fieldsListDiff1.add("---")
+                            fieldsListDiff2.add(f2.fieldDiffLine())
+                            ++i2
+                        }
+                    }
+                }
+                i1 < size1 -> {
+                    val f1 = fields1[i1]
+                    hasFieldsListDiff = true
+                    fieldsListDiff1.add(f1.fieldDiffLine())
+                    fieldsListDiff2.add("---")
+                    ++i1
+                }
+                else -> {
+                    val f2 = fields2[i2]
+                    hasFieldsListDiff = true
+                    fieldsListDiff1.add("---")
+                    fieldsListDiff2.add(f2.fieldDiffLine())
+                    ++i2
+                }
+            }
+        }
+
+        if (hasFieldsListDiff) {
+            classDiff.structureDiffs.add(ListDiff("fields", fieldsListDiff1, fieldsListDiff2))
         }
     }
 
     private fun MethodSignature.methodDiffLine() =
-            "${flags.toString(2)} $id ${flags.methodFlags()}"
+            "$id ${flags.methodFlags()}"
+
+    private fun FieldSignature.fieldDiffLine() =
+            "$id ${flags.fieldFlags()}"
 
     private fun compareMethods(m1: MethodSignature, m2: MethodSignature) {
-        // TODO
+        val diff = compareMembers(
+                m1, m1.flags.methodFlags(),
+                m2, m2.flags.methodFlags(),
+                methodProperties, methodAnnotationsProperties
+        )
+
+        for ((ps1, ps2) in m1.parameters.zip(m2.parameters)) {
+            for (pap in parameterAnnotationsProperties) {
+                val anns1 = ps1.annotations[pap].orEmpty()
+                val anns2 = ps2.annotations[pap].orEmpty()
+                diff.parameterAnnotationsDiff.add(compareAnnotations(pap.name, anns1, anns2))
+            }
+        }
+
+        if (diff.isNotEmpty()) {
+            classDiff.memberDiffs.add(diff)
+        }
+    }
+
+    private fun compareFields(f1: FieldSignature, f2: FieldSignature) {
+        val diff = compareMembers(
+                f1, f1.flags.fieldFlags(),
+                f2, f2.flags.fieldFlags(),
+                fieldProperties, fieldAnnotationProperties
+        )
+        if (diff.isNotEmpty()) {
+            classDiff.memberDiffs.add(diff)
+        }
+    }
+
+    private fun compareMembers(
+            e1: Entity,
+            info1: String,
+            e2: Entity,
+            info2: String,
+            properties: List<EntityProperty<*, *>>,
+            annotationsProperties: List<AnnotationsProperty<*, *>>
+    ) : MemberDiff {
+        val propertyDiffs = ArrayList<PropertyDiff>()
+        for (mp in properties) {
+            val valueToHtml = mp.valueToHtml as (Any?) -> String
+            val v1 = e1.data[mp]
+            val v2 = e2.data[mp]
+            if (v1 != v2) {
+                propertyDiffs.add(PropertyDiff(mp.name, valueToHtml(v1), valueToHtml(v2)))
+            }
+        }
+
+        val annotationsDiffs = ArrayList<ListDiff>()
+        for (mp in annotationsProperties) {
+            val anns1 = e1.annotations[mp].orEmpty()
+            val anns2 = e2.annotations[mp].orEmpty()
+            val annsDiff = compareAnnotations(mp.name, anns1, anns2)
+            if (annsDiff != null) {
+                annotationsDiffs.add(annsDiff)
+            }
+        }
+
+        return MemberDiff(e1.id, info1, info2, propertyDiffs, annotationsDiffs)
     }
 
     private fun List<MethodSignature>.preprocessMethods() =
@@ -122,4 +238,9 @@ class ClassComparisonTask(
                 flags and Opcodes.ACC_SYNTHETIC == 0
             }.sortedBy { it.id }
 
+    private fun List<FieldSignature>.preprocessFields() =
+            filter {
+                val flags = it.flags
+                flags and Opcodes.ACC_SYNTHETIC == 0
+            }.sortedBy { it.id }
 }

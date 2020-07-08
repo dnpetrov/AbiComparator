@@ -20,6 +20,9 @@ fun Int.classFlags() =
 fun Int.methodFlags() =
         flagsList(METHOD_FLAGS)
 
+fun Int.fieldFlags() =
+        flagsList(FIELD_FLAGS)
+
 private fun Int.flagsList(flags: List<(Int) -> String?>) =
         flags.mapNotNull {
             flag -> flag(this)
@@ -36,7 +39,7 @@ val CLASS_FLAGS = listOf(
         AndFlag(Opcodes.ACC_INTERFACE, "interface"),
         AndFlag(Opcodes.ACC_ABSTRACT, "abstract"),
         AndFlag(Opcodes.ACC_SYNTHETIC, "synthetic"),
-        AndFlag(Opcodes.ACC_ANNOTATION, "anotation"),
+        AndFlag(Opcodes.ACC_ANNOTATION, "annotation"),
         AndFlag(Opcodes.ACC_ENUM, "enum"),
         AndFlag(Opcodes.ACC_MODULE, "module)")
 )
@@ -55,5 +58,19 @@ val METHOD_FLAGS = listOf(
         AndFlag(Opcodes.ACC_ABSTRACT, "abstract"),
         AndFlag(Opcodes.ACC_STRICT, "strict"),
         AndFlag(Opcodes.ACC_SYNTHETIC, "synthetic"),
+        AndFlag(Opcodes.ACC_DEPRECATED, "deprecated")
+)
+
+val FIELD_FLAGS = listOf(
+        AndNotFlag(Opcodes.ACC_PUBLIC + Opcodes.ACC_PROTECTED + Opcodes.ACC_PRIVATE, "package-private"),
+        AndFlag(Opcodes.ACC_PUBLIC, "public"),
+        AndFlag(Opcodes.ACC_PRIVATE, "private"),
+        AndFlag(Opcodes.ACC_PROTECTED, "protected"),
+        AndFlag(Opcodes.ACC_STATIC, "static"),
+        AndFlag(Opcodes.ACC_FINAL, "final"),
+        AndFlag(Opcodes.ACC_VOLATILE, "volatile"),
+        AndFlag(Opcodes.ACC_TRANSIENT, "transient"),
+        AndFlag(Opcodes.ACC_SYNTHETIC, "synthetic"),
+        AndFlag(Opcodes.ACC_ENUM, "enum"),
         AndFlag(Opcodes.ACC_DEPRECATED, "deprecated")
 )

@@ -3,7 +3,6 @@
 package org.jetbrains.kotlin.abicmp
 
 import java.io.*
-import java.nio.charset.StandardCharsets
 
 const val REPORT_CSS = """
 table, th, td {
@@ -68,37 +67,69 @@ class Report(
         tag("p", "$header2: ${diff.classInfo2}")
 
         if (diff.propertyDiffs.isNotEmpty()) {
-            tag("table") {
-                list("tr", "th", "Property", header1, header2, "Details")
-                for (propertyDiff in diff.propertyDiffs) {
-                    list("tr", "td", propertyDiff.property, propertyDiff.value1, propertyDiff.value2, propertyDiff.details)
-                }
-            }
-            space()
+            reportPropertyDiffs(diff.propertyDiffs)
         }
 
         if (diff.annotationsDiffs.isNotEmpty()) {
-            tag("table") {
-                list("tr", "th", "Property", header1, header2)
-                for (annDiff in diff.annotationsDiffs) {
-                    annDiff.diff1.zip(annDiff.diff2).forEach { (entry1, entry2) ->
-                        list("tr", "td", annDiff.property, entry1.toHtmlDiff(), entry2.toHtmlDiff())
+            reportListDiff(diff.annotationsDiffs)
+        }
+
+        if (diff.structureDiffs.isNotEmpty()) {
+            reportListDiff(diff.structureDiffs)
+        }
+
+        if (diff.memberDiffs.isNotEmpty()) {
+            reportMemberDiffs(diff.memberDiffs)
+        }
+    }
+
+    private fun reportMemberDiffs(memberDiffs: List<MemberDiff>) {
+        for (diff in memberDiffs) {
+            tag("h3", diff.id.escapeHtml())
+            tag("p", "$header1: ${diff.info1}")
+            tag("p", "$header2: ${diff.info2}")
+            if (diff.propertyDiffs.isNotEmpty()) {
+                reportPropertyDiffs(diff.propertyDiffs)
+            }
+            if (diff.annotationsDiff.isNotEmpty()) {
+                reportListDiff(diff.annotationsDiff)
+            }
+            if (diff.parameterAnnotationsDiff.any { it != null }) {
+                tag("table") {
+                    list("tr", "th", "Property", header1, header2)
+                    for (i in diff.parameterAnnotationsDiff.indices) {
+                        val pad = diff.parameterAnnotationsDiff[i] ?: continue
+                        reportListDiffRow(pad, prefix = "p$i:")
                     }
                 }
             }
-            space()
         }
+    }
 
-        val methodsListDiff = diff.methodsListDiff
-        if (methodsListDiff != null) {
-            tag("table") {
-                list("tr", "th", header1, header2)
-                methodsListDiff.diff1.zip(methodsListDiff.diff2).forEach { (entry1, entry2) ->
-                    list("tr", "td", entry1.toHtmlDiff(), entry2.toHtmlDiff())
-                }
+    private fun reportListDiff(annotationsDiffs: List<ListDiff>) {
+        tag("table") {
+            list("tr", "th", "Property", header1, header2)
+            for (annDiff in annotationsDiffs) {
+                reportListDiffRow(annDiff)
             }
-            space()
         }
+        space()
+    }
+
+    private fun reportListDiffRow(diff: ListDiff, prefix: String = "") {
+        diff.diff1.zip(diff.diff2).forEach { (entry1, entry2) ->
+            list("tr", "td", prefix + diff.property, entry1.toHtmlDiff(), entry2.toHtmlDiff())
+        }
+    }
+
+    private fun reportPropertyDiffs(propertyDiffs: List<PropertyDiff>) {
+        tag("table") {
+            list("tr", "th", "Property", header1, header2)
+            for (propertyDiff in propertyDiffs) {
+                list("tr", "td", propertyDiff.property, propertyDiff.value1, propertyDiff.value2)
+            }
+        }
+        space()
     }
 
     private fun String.toHtmlDiff() = "<code>${escapeHtml()}</code>"
