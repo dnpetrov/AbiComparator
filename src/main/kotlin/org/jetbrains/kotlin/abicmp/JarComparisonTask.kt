@@ -2,9 +2,9 @@ package org.jetbrains.kotlin.abicmp
 
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.InnerClassNode
 import java.io.File
 import java.util.*
-import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import kotlin.collections.ArrayList
 
@@ -13,6 +13,8 @@ class JarComparisonTask(
         private val jarFile2: File,
         reportFile: File
 ) : Runnable {
+
+    private val ignoreAnonymousLocalClasses = true
 
     private val names1 = TreeSet<String>()
 
@@ -34,7 +36,7 @@ class JarComparisonTask(
                 val entry2 = jar2.getEntry(name1)
                 if (entry2 == null) {
                     val classNode = parseClassNode(jar1.getInputStream(entry1))
-                    if (!classNode.isSynthetic()) {
+                    if (!classNode.shouldBeIgnored()) {
                         entriesMissingInJar2.add(name1 + " " + classNode.access.classFlags())
                     }
                 } else {
@@ -44,7 +46,7 @@ class JarComparisonTask(
 
                     val classNode1 = parseClassNode(jar1.getInputStream(entry1))
                     val classNode2 = parseClassNode(jar2.getInputStream(entry2))
-                    if (!classNode1.isSynthetic() || !classNode2.isSynthetic()) {
+                    if (!classNode1.shouldBeIgnored() || !classNode2.shouldBeIgnored()) {
                         val cs1 = parseClassSignature(classId1, classNode1)
                         val cs2 = parseClassSignature(classId2, classNode2)
                         val classTask = ClassComparisonTask(cs1, cs2, report)
@@ -61,7 +63,7 @@ class JarComparisonTask(
             val name2 = entry2.name
             if (name2.endsWith(".class") && name2 !in names1) {
                 val classNode = parseClassNode(jar2.getInputStream(entry2))
-                if (!classNode.isSynthetic()) {
+                if (!classNode.shouldBeIgnored()) {
                     entriesMissingInJar1.add(name2 + " " + classNode.access.classFlags())
                 }
             }
@@ -87,4 +89,15 @@ class JarComparisonTask(
     }
 
     private fun ClassNode.isSynthetic() = access and Opcodes.ACC_SYNTHETIC != 0
+
+    @Suppress("UNCHECKED_CAST")
+    private fun ClassNode.shouldBeIgnored(): Boolean {
+        if (isSynthetic()) return true
+        if (ignoreAnonymousLocalClasses) {
+            if ((innerClasses as List<InnerClassNode>).any { it.name == this.name && it.innerName == null }) {
+                return true
+            }
+        }
+        return false
+    }
 }
