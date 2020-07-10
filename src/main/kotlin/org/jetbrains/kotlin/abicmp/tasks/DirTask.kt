@@ -1,17 +1,22 @@
-package org.jetbrains.kotlin.abicmp
+package org.jetbrains.kotlin.abicmp.tasks
 
 import java.io.File
-import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.jar.JarFile
 
-class DirComparisonTask(
+class DirTask(
         private val dir1: File,
         private val dir2: File,
-        private val reportDir: File,
         private val id1: String,
         private val id2: String,
-        private val executor: ExecutorService
+        private val header1: String,
+        private val header2: String,
+        private val reportDir: File,
 ) : Runnable {
+
+    private val executor = Executors.newWorkStealingPool()
+
     private val lastNameIndex = HashMap<String, Int>()
     private val tasks = ArrayList<Future<*>>()
 
@@ -38,7 +43,9 @@ class DirComparisonTask(
                     val index = index0 + 1
                     lastNameIndex[file1.name] = index
                     val reportFile = File(reportDir, "${file1.name}-REPORT-$index.html")
-                    tasks.add(executor.submit(JarComparisonTask(file1, file2, reportFile)))
+                    val jarTaskHeader = file1.name.replace(id1, "").replace(".jar", "")
+                    val jarTask = JarTask(jarTaskHeader, JarFile(file1), JarFile(file2), header1, header2, reportFile)
+                    tasks.add(executor.submit(jarTask))
                 }
             }
         }

@@ -14,6 +14,9 @@ class AndNotFlag(private val flag: Int, private val name: String) : (Int) -> Str
     }
 }
 
+fun Int.isSynthetic() =
+        this and Opcodes.ACC_SYNTHETIC != 0
+
 fun Int.classFlags() =
         flagsList(CLASS_FLAGS)
 

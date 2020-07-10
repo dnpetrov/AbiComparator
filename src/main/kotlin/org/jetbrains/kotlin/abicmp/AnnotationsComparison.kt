@@ -1,11 +1,11 @@
 package org.jetbrains.kotlin.abicmp
 
+import org.jetbrains.kotlin.abicmp.reports.ListDiff
 import org.objectweb.asm.Type
 
 val IGNORED_ANNOTATIONS = listOf("Lkotlin/Metadata;", "Lkotlin/coroutines/jvm/internal/DebugMetadata;")
 
 fun compareAnnotations(
-        propertyName: String,
         annotations1: List<AnnotationEntry>,
         annotations2: List<AnnotationEntry>
 ) : ListDiff? {
@@ -69,7 +69,7 @@ fun compareAnnotations(
         }
     }
 
-    return if (hasDiff) ListDiff(propertyName, diff1, diff2) else null
+    return if (hasDiff) ListDiff(diff1, diff2) else null
 }
 
 private fun List<AnnotationEntry>.preprocessAnnotations() =
