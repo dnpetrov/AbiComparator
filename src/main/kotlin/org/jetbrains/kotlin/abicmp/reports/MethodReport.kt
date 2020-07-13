@@ -42,9 +42,7 @@ class MethodReport(
                     annotationDiffs.isEmpty()
 
     override fun write(output: PrintWriter) {
-        output.tag("p") {
-            output.tag("b", methodId.escapeHtml())
-        }
+        output.tag("h2", "&gt; METHOD " + methodId.escapeHtml())
 
         for (info in infoParagraphs) {
             output.tag("p", info)

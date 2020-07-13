@@ -41,9 +41,7 @@ class FieldReport(
             propertyDiffs.isEmpty() && annotationDiffs.isEmpty()
 
     override fun write(output: PrintWriter) {
-        output.tag("p") {
-            output.tag("b", fieldId.escapeHtml())
-        }
+        output.tag("h2", "&gt; FIELD " + fieldId.escapeHtml())
 
         for (info in infoParagraphs) {
             output.tag("p", info)

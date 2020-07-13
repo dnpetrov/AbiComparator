@@ -3,6 +3,7 @@ package org.jetbrains.kotlin.abicmp.tasks
 import org.jetbrains.kotlin.abicmp.checkers.FieldAnnotationsChecker
 import org.jetbrains.kotlin.abicmp.checkers.fieldPropertyChecker
 import org.jetbrains.kotlin.abicmp.fieldFlags
+import org.jetbrains.kotlin.abicmp.methodFlags
 import org.jetbrains.kotlin.abicmp.reports.FieldReport
 import org.jetbrains.kotlin.abicmp.tag
 import org.objectweb.asm.tree.FieldNode
@@ -14,7 +15,7 @@ class FieldTask(
 ) : Runnable {
 
     private val fieldCheckers = listOf(
-            fieldPropertyChecker(FieldNode::access),
+            fieldPropertyChecker(FieldNode::access) { v -> "${v.toString(2)} ${v.methodFlags()}"},
             fieldPropertyChecker("fieldName", FieldNode::name),
             fieldPropertyChecker(FieldNode::desc),
             fieldPropertyChecker(FieldNode::signature),

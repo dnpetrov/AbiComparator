@@ -74,7 +74,7 @@ class ClassReport(
             fieldReports.filter { !it.isEmpty() }.sortedBy { it.fieldId }
 
     override fun write(output: PrintWriter) {
-        output.tag("h1", classInternalName.escapeHtml())
+        output.tag("h1", "CLASS " + classInternalName.escapeHtml())
 
         for (info in infoParagraphs) {
             output.tag("p", info)

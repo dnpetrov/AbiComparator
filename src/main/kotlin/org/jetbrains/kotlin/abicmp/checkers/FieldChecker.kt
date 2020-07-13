@@ -32,6 +32,15 @@ fun <T> fieldPropertyChecker(fieldProperty: KProperty1<FieldNode, T>) =
 fun <T> fieldPropertyChecker(name: String, fieldProperty: KProperty1<FieldNode, T>) =
         fieldPropertyChecker(name) { fieldProperty.get(it) }
 
+inline fun <T> fieldPropertyChecker(fieldProperty: KProperty1<FieldNode, T>, crossinline html: (T) -> String) =
+        object : FieldPropertyChecker<T>(fieldProperty.name) {
+            override fun getProperty(node: FieldNode): T =
+                    fieldProperty.get(node)
+
+            override fun valueToHtml(value: T): String =
+                    html(value)
+        }
+
 class FieldAnnotationsChecker(annotationsProperty: KProperty1<FieldNode, List<Any?>?>) :
         AnnotationsChecker<FieldNode>(annotationsProperty), FieldChecker {
 
