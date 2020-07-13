@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.abicmp.checkers.compareLists
 import org.jetbrains.kotlin.abicmp.reports.ClassReport
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
+import org.objectweb.asm.tree.InnerClassNode
 import org.objectweb.asm.tree.MethodNode
 
 class ClassTask(
@@ -43,6 +44,8 @@ class ClassTask(
             checker.check(class1, class2, report)
         }
 
+        checkInnerClasses()
+
         checkMethodsList()
         checkMethods()
 
@@ -62,6 +65,39 @@ class ClassTask(
             }
         }
     }
+
+    private fun checkInnerClasses() {
+        val innerClasses1 = class1.innerClasses.notNullList<InnerClassNode>()
+                .filter { it.innerName != null && it.innerName != "WhenMappings" }
+                .associateBy { it.name }
+        val innerClasses2 = class2.innerClasses.notNullList<InnerClassNode>()
+                .filter { it.innerName != null && it.innerName != "WhenMappings" }
+                .associateBy { it.name }
+
+        val relevantInnerClassNames =
+                innerClasses1.keys.union(innerClasses2.keys).filter {
+                    val ic1 = innerClasses1[it]
+                    val ic2 = innerClasses2[it]
+                    ic1 != null && !ic1.access.isSynthetic() ||
+                            ic2 != null && ic2.access.isSynthetic()
+                }
+        val innerClassNames1 = innerClasses1.keys.filter { it in relevantInnerClassNames }.sorted()
+        val innerClassNames2 = innerClasses2.keys.filter { it in relevantInnerClassNames }.sorted()
+
+        val listDiff = compareLists(innerClassNames1, innerClassNames2) ?: return
+
+        report.addInnerClassesDiffs(
+                listDiff.diff1.map {
+                    innerClasses1[it]?.toInnerClassLine() ?: "---"
+                },
+                listDiff.diff2.map {
+                    innerClasses2[it]?.toInnerClassLine() ?: "---"
+                }
+        )
+    }
+
+    private fun InnerClassNode.toInnerClassLine(): String =
+            "INNER_CLASS $name $outerName $innerName ${access.toString(2)} ${access.classFlags()}"
 
     private fun checkMethodsList() {
         val relevantMethodIds = methods1.keys.union(methods2.keys)

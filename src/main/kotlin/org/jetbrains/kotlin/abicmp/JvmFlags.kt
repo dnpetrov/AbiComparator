@@ -37,6 +37,7 @@ val CLASS_FLAGS = listOf(
         AndFlag(Opcodes.ACC_PUBLIC, "public"),
         AndFlag(Opcodes.ACC_PRIVATE, "private"),
         AndFlag(Opcodes.ACC_PROTECTED, "protected"),
+        AndFlag(Opcodes.ACC_STATIC, "static"),
         AndFlag(Opcodes.ACC_FINAL, "final"),
         AndFlag(Opcodes.ACC_SUPER, "super"),
         AndFlag(Opcodes.ACC_INTERFACE, "interface"),
@@ -44,7 +45,8 @@ val CLASS_FLAGS = listOf(
         AndFlag(Opcodes.ACC_SYNTHETIC, "synthetic"),
         AndFlag(Opcodes.ACC_ANNOTATION, "annotation"),
         AndFlag(Opcodes.ACC_ENUM, "enum"),
-        AndFlag(Opcodes.ACC_MODULE, "module)")
+        AndFlag(Opcodes.ACC_MODULE, "module)"),
+        AndFlag(Opcodes.ACC_DEPRECATED, "deprecated")
 )
 
 val METHOD_FLAGS = listOf(

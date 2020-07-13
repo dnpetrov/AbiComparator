@@ -14,6 +14,7 @@ class ClassReport(
 
     private val propertyDiffs = ArrayList<NamedDiffEntry>()
     private val annotationDiffs = ArrayList<NamedDiffEntry>()
+    private val innerClassesDiffs = ArrayList<DiffEntry>()
     private val methodListDiffs = ArrayList<DiffEntry>()
     private val methodReports = ArrayList<MethodReport>()
     private val fieldListDiffs = ArrayList<DiffEntry>()
@@ -22,6 +23,7 @@ class ClassReport(
     override fun isEmpty(): Boolean =
             propertyDiffs.isEmpty() &&
                     annotationDiffs.isEmpty() &&
+                    innerClassesDiffs.isEmpty() &&
                     methodListDiffs.isEmpty() &&
                     getFilteredMethodReports().isEmpty() &&
                     fieldListDiffs.isEmpty() &&
@@ -46,6 +48,12 @@ class ClassReport(
     fun addAnnotationDiffs(name: String, values1: List<String>, values2: List<String>) {
         values1.zip(values2).forEach { (v1, v2) ->
             annotationDiffs.add(NamedDiffEntry(name, v1, v2))
+        }
+    }
+
+    fun addInnerClassesDiffs(values1: List<String>, values2: List<String>) {
+        values1.zip(values2).forEach { (v1, v2) ->
+            innerClassesDiffs.add(DiffEntry(v1, v2))
         }
     }
 
@@ -83,6 +91,8 @@ class ClassReport(
         output.propertyDiffTable(header1, header2, propertyDiffs)
 
         output.annotationDiffTable(header1, header2, annotationDiffs)
+
+        output.listDiff(header1, header2, innerClassesDiffs)
 
         output.listDiff(header1, header2, methodListDiffs)
 

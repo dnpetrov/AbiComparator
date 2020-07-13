@@ -6,11 +6,13 @@ import org.jetbrains.kotlin.abicmp.tasks.DirTask
 import java.io.File
 
 fun main() {
-    val dir1 = "C:\\WORK\\jars-atrium-jvm"
-    val dir2 = "C:\\WORK\\jars-atrium-jvm-ir"
-    val id1 = null
-    val id2 = null
-    val reportPath = "C:\\WORK\\jars-atrium-report"
+    val dir1 = "C:\\WORK\\jars-kotlin-jvm"
+    val dir2 = "C:\\WORK\\jars-kotlin-jvm-ir"
+    // C:\WORK\jars-kotlin-jvm\jvm-abi-gen-1.4.255-20200706.124141-1.jar
+    val id1 = "124141"
+    // C:\WORK\jars-kotlin-jvm-ir\jvm-abi-gen-1.4.255-20200706.125644-1.jar
+    val id2 = "125644"
+    val reportPath = "C:\\WORK\\jars-kotlin-report"
 
     val reportDir = File(reportPath)
     reportDir.deleteRecursively()
