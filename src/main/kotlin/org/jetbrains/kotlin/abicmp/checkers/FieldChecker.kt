@@ -15,7 +15,13 @@ abstract class FieldPropertyChecker<T>(name: String) : PropertyChecker<T, FieldN
         val value1 = getProperty(field1)
         val value2 = getProperty(field2)
         if (!areEqual(value1, value2)) {
-            report.addPropertyDiff(NamedDiffEntry(name, valueToHtml(value1), valueToHtml(value2)))
+            report.addPropertyDiff(
+                    NamedDiffEntry(
+                            name,
+                            valueToHtml(value1, value2),
+                            valueToHtml(value2, value1)
+                    )
+            )
         }
     }
 }
@@ -37,7 +43,7 @@ inline fun <T> fieldPropertyChecker(fieldProperty: KProperty1<FieldNode, T>, cro
             override fun getProperty(node: FieldNode): T =
                     fieldProperty.get(node)
 
-            override fun valueToHtml(value: T): String =
+            override fun valueToHtml(value: T, other: T): String =
                     html(value)
         }
 

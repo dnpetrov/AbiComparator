@@ -17,7 +17,13 @@ abstract class MethodPropertyChecker<T>(name: String) : PropertyChecker<T, Metho
         val value1 = getProperty(method1)
         val value2 = getProperty(method2)
         if (!areEqual(value1, value2)) {
-            report.addPropertyDiff(NamedDiffEntry(name, valueToHtml(value1), valueToHtml(value2)))
+            report.addPropertyDiff(
+                    NamedDiffEntry(
+                            name,
+                            valueToHtml(value1, value2),
+                            valueToHtml(value2, value1)
+                    )
+            )
         }
     }
 }
@@ -36,8 +42,17 @@ inline fun <T> methodPropertyChecker(methodProperty: KProperty1<MethodNode, T>, 
             override fun getProperty(node: MethodNode): T =
                     methodProperty.get(node)
 
-            override fun valueToHtml(value: T): String =
+            override fun valueToHtml(value: T, other: T): String =
                     html(value)
+        }
+
+inline fun <T> methodPropertyChecker(methodProperty: KProperty1<MethodNode, T>, crossinline html: (T, T) -> String) =
+        object : MethodPropertyChecker<T>(methodProperty.name) {
+            override fun getProperty(node: MethodNode): T =
+                    methodProperty.get(node)
+
+            override fun valueToHtml(value: T, other: T): String =
+                    html(value, other)
         }
 
 fun <T> methodPropertyChecker(name: String, methodProperty: KProperty1<MethodNode, T>) =

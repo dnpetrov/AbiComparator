@@ -15,7 +15,13 @@ abstract class ClassPropertyChecker<T>(name: String) : PropertyChecker<T, ClassN
         val value1 = getProperty(class1)
         val value2 = getProperty(class2)
         if (!areEqual(value1, value2)) {
-            report.addPropertyDiff(NamedDiffEntry(name, valueToHtml(value1), valueToHtml(value2)))
+            report.addPropertyDiff(
+                    NamedDiffEntry(
+                            name,
+                            valueToHtml(value1, value2),
+                            valueToHtml(value2, value1)
+                    )
+            )
         }
     }
 }
@@ -34,7 +40,7 @@ inline fun <T> classPropertyChecker(classProperty: KProperty1<ClassNode, T>, cro
             override fun getProperty(node: ClassNode): T =
                     classProperty.get(node)
 
-            override fun valueToHtml(value: T): String =
+            override fun valueToHtml(value: T, other: T): String =
                     html(value)
         }
 

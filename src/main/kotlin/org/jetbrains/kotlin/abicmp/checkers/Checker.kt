@@ -12,7 +12,7 @@ abstract class PropertyChecker<T, E>(override val name: String) : Checker {
     protected open fun areEqual(value1: T, value2: T) =
             value1 == value2
 
-    protected open fun valueToHtml(value: T): String =
+    protected open fun valueToHtml(value: T, other: T): String =
             value.toHtmlString()
 
     protected abstract fun getProperty(node: E): T
