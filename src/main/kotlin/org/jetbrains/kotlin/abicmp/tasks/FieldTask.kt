@@ -15,7 +15,7 @@ class FieldTask(
 ) : Runnable {
 
     private val fieldCheckers = listOf(
-            fieldPropertyChecker(FieldNode::access) { v -> "${v.toString(2)} ${v.methodFlags()}"},
+            fieldPropertyChecker(FieldNode::access) { v -> "${v.toString(2)} ${v.fieldFlags()}"},
             fieldPropertyChecker("fieldName", FieldNode::name),
             fieldPropertyChecker(FieldNode::desc),
             fieldPropertyChecker(FieldNode::signature),
