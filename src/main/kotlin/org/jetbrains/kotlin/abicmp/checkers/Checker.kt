@@ -22,8 +22,6 @@ abstract class AnnotationsChecker<N>(
         private val annotationsProperty: KProperty1<N, List<Any?>?>
 ) : Checker {
 
-    override val name = annotationsProperty.name
-
     protected fun getAnnotations(node: N) =
             annotationsProperty.get(node).orEmpty().toAnnotations()
 }

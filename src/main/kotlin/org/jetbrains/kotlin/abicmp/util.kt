@@ -8,5 +8,5 @@ inline fun <reified T> Any?.cast() =
 inline fun <reified T> Any?.safeCast() =
         this as? T
 
-inline fun <reified T: Any> List<Any?>?.notNullList() =
-        (this as? List<T?>).orEmpty().filterNotNull()
+inline fun <reified T: Any> List<Any?>?.listOfNotNull() =
+        orEmpty().filterIsInstance<T>()

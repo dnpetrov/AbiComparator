@@ -13,6 +13,7 @@ class DirTask(
         private val header1: String,
         private val header2: String,
         private val reportDir: File,
+        private val checkerConfiguration: CheckerConfiguration
 ) : Runnable {
 
     private val executor = Executors.newWorkStealingPool()
@@ -44,7 +45,12 @@ class DirTask(
                     lastNameIndex[file1.name] = index
                     val jarTaskHeader = file1.name.replaceIfNotNull(id1, "").replace(".jar", "")
                     val reportFile = File(reportDir, "$jarTaskHeader-REPORT-$index.html")
-                    val jarTask = JarTask(jarTaskHeader, JarFile(file1), JarFile(file2), header1, header2, reportFile)
+                    val jarTask = JarTask(
+                            jarTaskHeader,
+                            JarFile(file1), JarFile(file2),
+                            header1, header2,
+                            reportFile, checkerConfiguration
+                    )
                     tasks.add(executor.submit(jarTask))
                 }
             }

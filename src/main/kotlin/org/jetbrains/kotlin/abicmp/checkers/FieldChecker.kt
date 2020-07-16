@@ -10,7 +10,10 @@ interface FieldChecker : Checker {
     fun check(field1: FieldNode, field2: FieldNode, report: FieldReport)
 }
 
-abstract class FieldPropertyChecker<T>(name: String) : PropertyChecker<T, FieldNode>(name), FieldChecker {
+abstract class FieldPropertyChecker<T>(name: String) :
+        PropertyChecker<T, FieldNode>("field.$name"),
+        FieldChecker {
+
     override fun check(field1: FieldNode, field2: FieldNode, report: FieldReport) {
         val value1 = getProperty(field1)
         val value2 = getProperty(field2)
@@ -49,6 +52,8 @@ inline fun <T> fieldPropertyChecker(fieldProperty: KProperty1<FieldNode, T>, cro
 
 class FieldAnnotationsChecker(annotationsProperty: KProperty1<FieldNode, List<Any?>?>) :
         AnnotationsChecker<FieldNode>(annotationsProperty), FieldChecker {
+
+    override val name: String = "field.${annotationsProperty.name}"
 
     override fun check(field1: FieldNode, field2: FieldNode, report: FieldReport) {
         val anns1 = getAnnotations(field1)

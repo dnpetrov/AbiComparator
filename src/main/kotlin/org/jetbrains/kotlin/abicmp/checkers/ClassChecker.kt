@@ -10,7 +10,10 @@ interface ClassChecker : Checker {
     fun check(class1: ClassNode, class2: ClassNode, report: ClassReport)
 }
 
-abstract class ClassPropertyChecker<T>(name: String) : PropertyChecker<T, ClassNode>(name), ClassChecker {
+abstract class ClassPropertyChecker<T>(name: String) :
+        PropertyChecker<T, ClassNode>("class.$name"),
+        ClassChecker {
+
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
         val value1 = getProperty(class1)
         val value2 = getProperty(class2)
@@ -49,6 +52,8 @@ fun <T> classPropertyChecker(name: String, classProperty: KProperty1<ClassNode, 
 
 class ClassAnnotationsChecker(annotationsProperty: KProperty1<ClassNode, List<Any?>?>) :
         AnnotationsChecker<ClassNode>(annotationsProperty), ClassChecker {
+
+    override val name = "class.${annotationsProperty.name}"
 
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
         val anns1 = getAnnotations(class1)

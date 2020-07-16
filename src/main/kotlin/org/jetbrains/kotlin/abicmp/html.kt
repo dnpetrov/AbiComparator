@@ -10,7 +10,7 @@ fun String?.escapeHtml(): String {
 
 fun Any?.toHtmlString(): String {
     if (this == null) return "NULL"
-    return StringEscapeUtils.escapeHtml4(toString())
+    return StringEscapeUtils.escapeHtml4(toString()).replace("\n", "<br>")
 }
 
 fun PrintWriter.tag(tagName: String) {

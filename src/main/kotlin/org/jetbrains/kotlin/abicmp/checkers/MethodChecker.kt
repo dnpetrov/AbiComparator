@@ -13,7 +13,10 @@ interface MethodChecker : Checker {
     fun check(method1: MethodNode, method2: MethodNode, report: MethodReport)
 }
 
-abstract class MethodPropertyChecker<T>(name: String) : PropertyChecker<T, MethodNode>(name), MethodChecker {
+abstract class MethodPropertyChecker<T>(name: String) :
+        PropertyChecker<T, MethodNode>("method.$name"),
+        MethodChecker {
+
     override fun check(method1: MethodNode, method2: MethodNode, report: MethodReport) {
         val value1 = getProperty(method1)
         val value2 = getProperty(method2)
@@ -62,6 +65,8 @@ fun <T> methodPropertyChecker(name: String, methodProperty: KProperty1<MethodNod
 class MethodAnnotationsChecker(annotationsProperty: KProperty1<MethodNode, List<Any?>?>) :
         AnnotationsChecker<MethodNode>(annotationsProperty), MethodChecker {
 
+    override val name: String = "method.${annotationsProperty.name}"
+
     override fun check(method1: MethodNode, method2: MethodNode, report: MethodReport) {
         val anns1 = getAnnotations(method1)
         val anns2 = getAnnotations(method2)
@@ -73,7 +78,8 @@ class MethodAnnotationsChecker(annotationsProperty: KProperty1<MethodNode, List<
 class MethodParameterAnnotationsChecker(
         private val parameterAnnotationsProperty: KProperty1<MethodNode, Array<List<AnnotationNode?>?>?>
 ) : MethodChecker {
-    override val name = parameterAnnotationsProperty.name
+
+    override val name = "method.parameters.${parameterAnnotationsProperty.name}"
 
     override fun check(method1: MethodNode, method2: MethodNode, report: MethodReport) {
         val paramAnnsList1 = parameterAnnotationsProperty.get(method1)?.toList().orEmpty()

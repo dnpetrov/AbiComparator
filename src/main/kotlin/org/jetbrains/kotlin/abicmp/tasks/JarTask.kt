@@ -18,7 +18,8 @@ class JarTask(
         private val jarFile2: JarFile,
         private val header1: String,
         private val header2: String,
-        private val outputFile: File
+        private val outputFile: File,
+        private val checkerConfiguration: CheckerConfiguration
 ) : Runnable {
 
     private val ignoreAnonymousLocalClasses = true
@@ -59,7 +60,7 @@ class JarTask(
                     if (!class1.shouldBeIgnored() || !class2.shouldBeIgnored()) {
                         println("Comparing classes: ${class1.name}")
                         val classReport = report.classReport(class1.name)
-                        val classTask = ClassTask(class1, class2, classReport)
+                        val classTask = ClassTask(checkerConfiguration, class1, class2, classReport)
                         classTask.run()
                         if (classReport.isNotEmpty()) {
                             ++totalDiffs
@@ -114,7 +115,7 @@ class JarTask(
     }
 
     private fun ClassNode.isAnonymousLocalClass() =
-            innerClasses.notNullList<InnerClassNode>().any {
+            innerClasses.listOfNotNull<InnerClassNode>().any {
                 it.name == this.name && it.innerName == null
             }
 
