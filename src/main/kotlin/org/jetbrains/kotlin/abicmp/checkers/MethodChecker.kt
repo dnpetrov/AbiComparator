@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.abicmp.compareAnnotations
 import org.jetbrains.kotlin.abicmp.reports.MethodReport
 import org.jetbrains.kotlin.abicmp.reports.NamedDiffEntry
 import org.jetbrains.kotlin.abicmp.toAnnotations
+import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.MethodNode
 import kotlin.math.max
 import kotlin.reflect.KProperty1
@@ -70,7 +71,7 @@ class MethodAnnotationsChecker(annotationsProperty: KProperty1<MethodNode, List<
 }
 
 class MethodParameterAnnotationsChecker(
-        private val parameterAnnotationsProperty: KProperty1<MethodNode, Array<List<Any?>?>?>
+        private val parameterAnnotationsProperty: KProperty1<MethodNode, Array<List<AnnotationNode?>?>?>
 ) : MethodChecker {
     override val name = parameterAnnotationsProperty.name
 
