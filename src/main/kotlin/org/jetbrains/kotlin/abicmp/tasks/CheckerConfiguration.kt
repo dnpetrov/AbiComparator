@@ -18,9 +18,9 @@ val allClassCheckers = listOf(
         classPropertyChecker(ClassNode::outerClass),
         classPropertyChecker(ClassNode::outerMethod),
         classPropertyChecker(ClassNode::outerMethodDesc),
-        classPropertyChecker("metadata") { node -> node.renderKotlinMetadata() },
         ClassAnnotationsChecker(ClassNode::visibleAnnotations),
         ClassAnnotationsChecker(ClassNode::invisibleAnnotations),
+        KotlinMetadataChecker(),
         InnerClassesListChecker(),
         MethodsListChecker(),
         FieldsListChecker()

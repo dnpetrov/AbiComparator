@@ -62,7 +62,7 @@ private fun visitFunction(sb: StringBuilder, flags: Flags, name: String): KmFunc
                     sb.appendLine("  // $versionRequirement")
                 }
                 if (jvmSignature != null) {
-                    sb.appendLine("  // signature: $jvmSignature")
+                    sb.appendLine("  // jvmSignature: $jvmSignature")
                 }
                 sb.append("  ")
                 sb.appendFlags(flags, FUNCTION_FLAGS_MAP)
@@ -140,22 +140,22 @@ private fun visitProperty(
             override fun visitEnd() {
                 sb.appendLine()
                 for (versionRequirement in versionRequirements) {
-                    sb.appendLine("  // $versionRequirement")
+                    sb.appendLine("  // versionRequirement: $versionRequirement")
                 }
                 if (jvmFieldSignature != null) {
-                    sb.appendLine("  // field: $jvmFieldSignature")
+                    sb.appendLine("  // jvmFieldSignature: $jvmFieldSignature")
                 }
                 if (jvmGetterSignature != null) {
-                    sb.appendLine("  // getter: $jvmGetterSignature")
+                    sb.appendLine("  // jvmGetterSignature: $jvmGetterSignature")
                 }
                 if (jvmSetterSignature != null) {
-                    sb.appendLine("  // setter: $jvmSetterSignature")
+                    sb.appendLine("  // jvmSetterSignature: $jvmSetterSignature")
                 }
                 if (jvmSyntheticMethodForAnnotationsSignature != null) {
-                    sb.appendLine("  // synthetic method for annotations: $jvmSyntheticMethodForAnnotationsSignature")
+                    sb.appendLine("  // jvmSyntheticMethodForAnnotationsSignature: $jvmSyntheticMethodForAnnotationsSignature")
                 }
                 if (isMovedFromInterfaceCompanion) {
-                    sb.appendLine("  // is moved from interface companion")
+                    sb.appendLine("  // isMovedFromInterfaceCompanion")
                 }
                 sb.append("  ")
                 sb.appendFlags(flags, PROPERTY_FLAGS_MAP)
@@ -216,10 +216,10 @@ private fun visitConstructor(sb: StringBuilder, flags: Flags): KmConstructorVisi
             override fun visitEnd() {
                 sb.appendLine()
                 for (versionRequirement in versionRequirements) {
-                    sb.appendLine("  // $versionRequirement")
+                    sb.appendLine("  // versionRequirement: $versionRequirement")
                 }
                 if (jvmSignature != null) {
-                    sb.appendLine("  // signature: $jvmSignature")
+                    sb.appendLine("  // jvmSignature: $jvmSignature")
                 }
                 sb.append("  ")
                 sb.appendFlags(flags, CONSTRUCTOR_FLAGS_MAP)
@@ -256,7 +256,7 @@ private fun visitTypeAlias(sb: StringBuilder, flags: Flags, name: String): KmTyp
             override fun visitEnd() {
                 sb.appendLine()
                 for (versionRequirement in versionRequirements) {
-                    sb.appendLine("  // $versionRequirement")
+                    sb.appendLine("  // versionRequirement: $versionRequirement")
                 }
                 for (annotation in annotations) {
                     sb.append("  ").append("@").append(renderAnnotation(annotation)).appendLine()
@@ -698,10 +698,10 @@ class ClassPrinter : KmClassVisitor(), AbstractPrinter<KotlinClassMetadata.Class
 
     override fun visitEnd() {
         if (anonymousObjectOriginName != null) {
-            result.appendLine("// anonymous object origin: $anonymousObjectOriginName")
+            result.appendLine("// anonymousObjectOriginName: $anonymousObjectOriginName")
         }
         for (versionRequirement in versionRequirements) {
-            result.appendLine("// $versionRequirement")
+            result.appendLine("// versionRequirement: $versionRequirement")
         }
         result.appendFlags(flags!!, CLASS_FLAGS_MAP)
         result.append(name)
@@ -869,7 +869,7 @@ class MultiFileClassFacadePrinter : AbstractPrinter<KotlinClassMetadata.MultiFil
             buildString {
                 appendLine("multi-file class {")
                 for (part in klass.partClassNames) {
-                    appendLine("  // $part")
+                    appendLine("  // part: $part")
                 }
                 appendLine("}")
             }
