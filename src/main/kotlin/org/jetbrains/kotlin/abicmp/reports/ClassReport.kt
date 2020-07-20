@@ -1,7 +1,6 @@
 package org.jetbrains.kotlin.abicmp.reports
 
-import org.jetbrains.kotlin.abicmp.escapeHtml
-import org.jetbrains.kotlin.abicmp.tag
+import org.jetbrains.kotlin.abicmp.*
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
 
@@ -12,6 +11,7 @@ class ClassReport(
 ) : ComparisonReport {
     private val infoParagraphs = ArrayList<String>()
 
+    private val metadataDiff = ArrayList<TextDiffEntry>()
     private val propertyDiffs = ArrayList<NamedDiffEntry>()
     private val annotationDiffs = ArrayList<NamedDiffEntry>()
     private val innerClassesDiffs = ArrayList<DiffEntry>()
@@ -21,7 +21,8 @@ class ClassReport(
     private val fieldReports = ArrayList<FieldReport>()
 
     override fun isEmpty(): Boolean =
-            propertyDiffs.isEmpty() &&
+            metadataDiff.isEmpty() &&
+                    propertyDiffs.isEmpty() &&
                     annotationDiffs.isEmpty() &&
                     innerClassesDiffs.isEmpty() &&
                     methodListDiffs.isEmpty() &&
@@ -39,6 +40,10 @@ class ClassReport(
         ps.fm()
         ps.close()
         addInfo(String(bytes.toByteArray()))
+    }
+
+    fun addMetadataDiff(diff: TextDiffEntry) {
+        metadataDiff.add(diff)
     }
 
     fun addPropertyDiff(diff: NamedDiffEntry) {
@@ -88,6 +93,21 @@ class ClassReport(
             output.tag("p", info)
         }
 
+        if (metadataDiff.isNotEmpty()) {
+            output.tag("h3", "@kotlin.Metadata")
+            output.table {
+                output.tableHeader("@", header1, "@", header2)
+                for (diff in metadataDiff) {
+                    output.tableData(
+                            diff.pos1.toString(),
+                            diff.lines1.toDiffTableData(),
+                            diff.pos2.toString(),
+                            diff.lines2.toDiffTableData()
+                    )
+                }
+            }
+        }
+
         output.propertyDiffTable(header1, header2, propertyDiffs)
 
         output.annotationDiffTable(header1, header2, annotationDiffs)
@@ -106,4 +126,12 @@ class ClassReport(
             fr.write(output)
         }
     }
+
+    private fun List<String>.toDiffTableData(): String =
+            buildString {
+                for (line in this@toDiffTableData) {
+                    append("<code>${line.escapeHtml()}</code>")
+                    append("<br>")
+                }
+            }
 }
