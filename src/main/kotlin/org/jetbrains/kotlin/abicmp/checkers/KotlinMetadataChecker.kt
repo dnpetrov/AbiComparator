@@ -17,8 +17,7 @@ class KotlinMetadataChecker : ClassChecker {
         val patch = DiffUtils.diff(metadata1, metadata2, null)
         for (delta in patch.deltas) {
             report.addMetadataDiff(TextDiffEntry(
-                    delta.source.position, delta.source.lines.toList(),
-                    delta.target.position, delta.target.lines.toList()
+                    delta.source.lines.toList(), delta.target.lines.toList()
             ))
         }
     }

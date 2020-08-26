@@ -96,16 +96,15 @@ class ClassReport(
         if (metadataDiff.isNotEmpty()) {
             output.tag("h3", "@kotlin.Metadata")
             output.table {
-                output.tableHeader("@", header1, "@", header2)
+                output.tableHeader(header1, header2)
                 for (diff in metadataDiff) {
                     output.tableData(
-                            diff.pos1.toString(),
                             diff.lines1.toDiffTableData(),
-                            diff.pos2.toString(),
                             diff.lines2.toDiffTableData()
                     )
                 }
             }
+            output.println("&nbsp;")
         }
 
         output.propertyDiffTable(header1, header2, propertyDiffs)

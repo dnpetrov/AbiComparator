@@ -14,6 +14,9 @@ class AndNotFlag(private val flag: Int, private val name: String) : (Int) -> Str
     }
 }
 
+fun Int.isPrivate() =
+        this and Opcodes.ACC_PRIVATE != 0
+
 fun Int.isSynthetic() =
         this and Opcodes.ACC_SYNTHETIC != 0
 

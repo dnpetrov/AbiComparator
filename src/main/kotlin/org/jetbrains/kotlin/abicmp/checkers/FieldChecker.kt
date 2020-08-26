@@ -50,7 +50,9 @@ inline fun <T> fieldPropertyChecker(fieldProperty: KProperty1<FieldNode, T>, cro
                     html(value)
         }
 
-class FieldAnnotationsChecker(annotationsProperty: KProperty1<FieldNode, List<Any?>?>) :
+class FieldAnnotationsChecker(
+        annotationsProperty: KProperty1<FieldNode, List<Any?>?>
+) :
         AnnotationsChecker<FieldNode>(annotationsProperty), FieldChecker {
 
     override val name: String = "field.${annotationsProperty.name}"

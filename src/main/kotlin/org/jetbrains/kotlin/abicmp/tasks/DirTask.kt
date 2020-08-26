@@ -13,7 +13,7 @@ class DirTask(
         private val header1: String,
         private val header2: String,
         private val reportDir: File,
-        private val checkerConfiguration: CheckerConfiguration
+        private val checkerConfiguration: CheckerConfiguration = checkerConfiguration {}
 ) : Runnable {
 
     private val executor = Executors.newWorkStealingPool()

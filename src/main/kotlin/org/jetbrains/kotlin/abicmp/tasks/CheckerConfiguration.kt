@@ -46,7 +46,7 @@ val allFieldCheckers = listOf(
         fieldPropertyChecker(FieldNode::signature),
         fieldPropertyChecker("initialValue", FieldNode::value),
         FieldAnnotationsChecker(FieldNode::visibleAnnotations),
-        FieldAnnotationsChecker(FieldNode::invisibleAnnotations)
+        FieldAnnotationsChecker(FieldNode::invisibleAnnotations, ignoreNullabilityAnnotationsOnPrivateFields = true)
 )
 
 class CheckerConfigurationBuilder {

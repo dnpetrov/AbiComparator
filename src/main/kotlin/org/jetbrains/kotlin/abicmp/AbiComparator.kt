@@ -13,19 +13,17 @@ fun main() {
 private fun checkKotlin() {
     val dir1 = "C:\\WORK\\jars-kotlin-jvm"
     val dir2 = "C:\\WORK\\jars-kotlin-jvm-ir"
-//     C:\WORK\jars-kotlin-jvm\jvm-abi-gen-1.4.255-20200706.124141-1.jar
-    val id1 = "124141"
-//     C:\WORK\jars-kotlin-jvm-ir\jvm-abi-gen-1.4.255-20200706.125644-1.jar
-    val id2 = "125644"
+    val id1 = "130533"
+    val id2 = "132228"
     val reportPath = "C:\\WORK\\jars-kotlin-report"
 
     val header1 = "JVM"
     val header2 = "JVM_IR"
 
-//    val checkerConfiguration = checkerConfiguration {}
-    val checkerConfiguration = checkerConfiguration {
-        enableExclusively("class.metadata")
-    }
+    val checkerConfiguration = checkerConfiguration {}
+//    val checkerConfiguration = checkerConfiguration {
+//        enableExclusively("class.metadata")
+//    }
 
     val reportDir = File(reportPath)
     reportDir.deleteRecursively()

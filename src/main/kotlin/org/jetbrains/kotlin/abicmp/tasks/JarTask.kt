@@ -1,9 +1,12 @@
 package org.jetbrains.kotlin.abicmp.tasks
 
-import org.jetbrains.kotlin.abicmp.*
+import org.jetbrains.kotlin.abicmp.classFlags
+import org.jetbrains.kotlin.abicmp.isSynthetic
+import org.jetbrains.kotlin.abicmp.listOfNotNull
 import org.jetbrains.kotlin.abicmp.reports.JarReport
 import org.jetbrains.kotlin.abicmp.reports.REPORT_CSS
 import org.jetbrains.kotlin.abicmp.reports.isNotEmpty
+import org.jetbrains.kotlin.abicmp.tag
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.InnerClassNode
@@ -23,6 +26,7 @@ class JarTask(
 ) : Runnable {
 
     private val ignoreAnonymousLocalClasses = true
+    private val ignoreJavaClasses = true
 
     private val report = JarReport(header, header1, header2, jarFile1.name, jarFile2.name)
 
@@ -109,6 +113,7 @@ class JarTask(
     }
 
     private fun ClassNode.shouldBeIgnored(): Boolean {
+        if (ignoreJavaClasses && isJavaClass()) return true
         if (access.isSynthetic()) return true
         if (ignoreAnonymousLocalClasses && isAnonymousLocalClass()) return true
         return false
@@ -118,6 +123,9 @@ class JarTask(
             innerClasses.listOfNotNull<InnerClassNode>().any {
                 it.name == this.name && it.innerName == null
             }
+
+    private fun ClassNode.isJavaClass() =
+            sourceFile != null && sourceFile.endsWith(".java")
 
     private fun addJarsInfo() {
         report.info {
