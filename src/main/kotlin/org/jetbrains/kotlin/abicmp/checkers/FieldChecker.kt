@@ -1,6 +1,10 @@
 package org.jetbrains.kotlin.abicmp.checkers
 
+import jdk.internal.org.objectweb.asm.Type
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.kotlin.abicmp.compareAnnotations
+import org.jetbrains.kotlin.abicmp.isPrivate
 import org.jetbrains.kotlin.abicmp.reports.FieldReport
 import org.jetbrains.kotlin.abicmp.reports.NamedDiffEntry
 import org.objectweb.asm.tree.FieldNode
@@ -50,8 +54,15 @@ inline fun <T> fieldPropertyChecker(fieldProperty: KProperty1<FieldNode, T>, cro
                     html(value)
         }
 
+val NULLABILITY_ANNOTATIONS =
+        setOf(
+                Type.getDescriptor(NotNull::class.java),
+                Type.getDescriptor(Nullable::class.java)
+        )
+
 class FieldAnnotationsChecker(
-        annotationsProperty: KProperty1<FieldNode, List<Any?>?>
+        annotationsProperty: KProperty1<FieldNode, List<Any?>?>,
+        val ignoreNullabilityAnnotationsInIrBuild: Boolean = false
 ) :
         AnnotationsChecker<FieldNode>(annotationsProperty), FieldChecker {
 
@@ -60,7 +71,15 @@ class FieldAnnotationsChecker(
     override fun check(field1: FieldNode, field2: FieldNode, report: FieldReport) {
         val anns1 = getAnnotations(field1)
         val anns2 = getAnnotations(field2)
-        val listDiff = compareAnnotations(anns1, anns2) ?: return
+        val anns2filtered =
+                if (ignoreNullabilityAnnotationsInIrBuild &&
+                        field2.access.isPrivate() &&
+                        anns1.none { it.desc in NULLABILITY_ANNOTATIONS }
+                )
+                    anns2.filter { it.desc !in NULLABILITY_ANNOTATIONS }
+                else
+                    anns2
+        val listDiff = compareAnnotations(anns1, anns2filtered) ?: return
         report.addAnnotationDiffs(name, listDiff.diff1, listDiff.diff2)
     }
 }

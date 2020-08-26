@@ -2,7 +2,6 @@ package org.jetbrains.kotlin.abicmp.tasks
 
 import org.jetbrains.kotlin.abicmp.*
 import org.jetbrains.kotlin.abicmp.checkers.*
-import org.jetbrains.kotlin.abicmp.metadata.renderKotlinMetadata
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
@@ -46,7 +45,7 @@ val allFieldCheckers = listOf(
         fieldPropertyChecker(FieldNode::signature),
         fieldPropertyChecker("initialValue", FieldNode::value),
         FieldAnnotationsChecker(FieldNode::visibleAnnotations),
-        FieldAnnotationsChecker(FieldNode::invisibleAnnotations, ignoreNullabilityAnnotationsOnPrivateFields = true)
+        FieldAnnotationsChecker(FieldNode::invisibleAnnotations, ignoreNullabilityAnnotationsInIrBuild = true)
 )
 
 class CheckerConfigurationBuilder {
