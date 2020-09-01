@@ -1,16 +1,15 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 buildscript {
     ext {
         asm_debug_version = '6.0_BETA'
         apache_commons_text_version = '1.8'
         kotlinx_metadata_version = '0.1.0'
         diff_version = '4.5'
+        kotlin_version = '1.4.0'
     }
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4-M3'
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
     id 'application'
 }
 
@@ -30,10 +29,6 @@ dependencies {
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-}
-
-tasks.withType(KotlinCompile) {
-    kotlinOptions.jvmTarget = '1.8'
 }
 
 application {
