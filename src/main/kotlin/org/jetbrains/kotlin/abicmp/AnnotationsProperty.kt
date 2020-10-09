@@ -25,7 +25,8 @@ fun Any?.toAnnotation(): AnnotationEntry? {
 
 fun Any.toAnnotationArgumentValue(): Any =
         when (this) {
-            is Array<*> -> toList().map { it!!.toAnnotationArgumentValue() }
+            is Array<*> -> map { it!!.toAnnotationArgumentValue() }
+            is List<*> -> map { it!!.toAnnotationArgumentValue() }
             is AnnotationNode -> this.toAnnotation()!!
             else -> this
         }
