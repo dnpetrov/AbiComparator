@@ -25,7 +25,7 @@ class JarTask(
         private val checkerConfiguration: CheckerConfiguration
 ) : Runnable {
 
-    private val ignoreAnonymousLocalClasses = true
+    private val ignoreAnonymousOrLocalClasses = true
     private val ignoreJavaClasses = true
 
     private val report = JarReport(header, header1, header2, jarFile1.name, jarFile2.name)
@@ -115,13 +115,13 @@ class JarTask(
     private fun ClassNode.shouldBeIgnored(): Boolean {
         if (ignoreJavaClasses && isJavaClass()) return true
         if (access.isSynthetic()) return true
-        if (ignoreAnonymousLocalClasses && isAnonymousLocalClass()) return true
+        if (ignoreAnonymousOrLocalClasses && isAnonymousOrLocalClass()) return true
         return false
     }
 
-    private fun ClassNode.isAnonymousLocalClass() =
+    private fun ClassNode.isAnonymousOrLocalClass() =
             innerClasses.listOfNotNull<InnerClassNode>().any {
-                it.name == this.name && it.innerName == null
+                it.name == this.name && it.outerName == null
             }
 
     private fun ClassNode.isJavaClass() =
