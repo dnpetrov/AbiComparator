@@ -11,12 +11,8 @@ class InnerClassesListChecker : ClassChecker {
     override val name = "class.innerClasses"
 
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
-        val innerClasses1 = class1.innerClasses.listOfNotNull<InnerClassNode>()
-                .filter { it.innerName != null && it.innerName != "WhenMappings" }
-                .associateBy { it.name }
-        val innerClasses2 = class2.innerClasses.listOfNotNull<InnerClassNode>()
-                .filter { it.innerName != null && it.innerName != "WhenMappings" }
-                .associateBy { it.name }
+        val innerClasses1 = class1.loadInnerClasses()
+        val innerClasses2 = class2.loadInnerClasses()
 
         val relevantInnerClassNames =
                 innerClasses1.keys.union(innerClasses2.keys).filter {
@@ -40,7 +36,17 @@ class InnerClassesListChecker : ClassChecker {
         )
     }
 
+    private fun ClassNode.loadInnerClasses(): Map<String, InnerClassNode> =
+        innerClasses.listOfNotNull<InnerClassNode>()
+            .filterNot {
+                it.innerName == null || it.innerName == "WhenMappings" || isSamAdapterName(it.name)
+            }
+            .associateBy { it.name }
+
+
     private fun InnerClassNode.toInnerClassLine(): String =
             "INNER_CLASS $name $outerName $innerName ${access.toString(2)} ${access.classFlags()}"
 }
 
+fun isSamAdapterName(name: String): Boolean =
+    "\$sam$" in name && name.endsWith("$0")

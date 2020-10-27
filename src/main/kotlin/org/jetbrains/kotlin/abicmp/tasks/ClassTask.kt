@@ -1,8 +1,9 @@
 package org.jetbrains.kotlin.abicmp.tasks
 
+import org.jetbrains.kotlin.abicmp.checkers.loadFields
+import org.jetbrains.kotlin.abicmp.checkers.loadMethods
 import org.jetbrains.kotlin.abicmp.classFlags
 import org.jetbrains.kotlin.abicmp.isSynthetic
-import org.jetbrains.kotlin.abicmp.listOfNotNull
 import org.jetbrains.kotlin.abicmp.reports.ClassReport
 import org.jetbrains.kotlin.abicmp.tag
 import org.objectweb.asm.tree.ClassNode
@@ -41,8 +42,8 @@ class ClassTask(
     }
 
     private fun checkMethods() {
-        val methods1 = class1.methods.listOfNotNull<MethodNode>().associateBy { it.methodId() }
-        val methods2 = class2.methods.listOfNotNull<MethodNode>().associateBy { it.methodId() }
+        val methods1 = class1.loadMethods()
+        val methods2 = class2.loadMethods()
 
         val commonIds = methods1.keys.intersect(methods2.keys).sorted()
         for (id in commonIds) {
@@ -55,8 +56,8 @@ class ClassTask(
     }
 
     private fun checkFields() {
-        val fields1 = class1.fields.listOfNotNull<FieldNode>().associateBy { it.fieldId() }
-        val fields2 = class2.fields.listOfNotNull<FieldNode>().associateBy { it.fieldId() }
+        val fields1 = class1.loadFields()
+        val fields2 = class2.loadFields()
 
         val commonIds = fields1.keys.intersect(fields2.keys).sorted()
         for (id in commonIds) {
