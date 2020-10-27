@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.abicmp.listOfNotNull
 import org.jetbrains.kotlin.abicmp.methodFlags
 import org.jetbrains.kotlin.abicmp.reports.ClassReport
 import org.jetbrains.kotlin.abicmp.tasks.methodId
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
@@ -15,8 +16,8 @@ class MethodsListChecker : ClassChecker {
     private val ignoreMissingMethod1IfMethod2LooksLikeClosureConverted = true
 
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
-        val methods1 = class1.methods.listOfNotNull<MethodNode>().associateBy { it.methodId() }
-        val methods2 = class2.methods.listOfNotNull<MethodNode>().associateBy { it.methodId() }
+        val methods1 = class1.loadMethods()
+        val methods2 = class2.loadMethods()
 
         val relevantMethodIds = methods1.keys.union(methods2.keys)
                 .filter {
@@ -51,3 +52,9 @@ class MethodsListChecker : ClassChecker {
         return "$this ${method.access.methodFlags()}"
     }
 }
+
+fun ClassNode.loadMethods(): Map<String, MethodNode> =
+    methods.listOfNotNull<MethodNode>().filter {
+        (it.access and Opcodes.ACC_PUBLIC) != 0 ||
+            (it.access and Opcodes.ACC_PROTECTED) != 0
+    }.associateBy { it.methodId() }

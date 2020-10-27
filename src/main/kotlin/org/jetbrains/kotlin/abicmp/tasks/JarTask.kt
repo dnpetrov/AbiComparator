@@ -1,5 +1,6 @@
 package org.jetbrains.kotlin.abicmp.tasks
 
+import org.jetbrains.kotlin.abicmp.checkers.isSamAdapterName
 import org.jetbrains.kotlin.abicmp.classFlags
 import org.jetbrains.kotlin.abicmp.isSynthetic
 import org.jetbrains.kotlin.abicmp.listOfNotNull
@@ -120,6 +121,7 @@ class JarTask(
     }
 
     private fun ClassNode.isAnonymousOrLocalClass() =
+        isSamAdapterName(name) ||
             innerClasses.listOfNotNull<InnerClassNode>().any {
                 it.name == this.name && it.outerName == null
             }

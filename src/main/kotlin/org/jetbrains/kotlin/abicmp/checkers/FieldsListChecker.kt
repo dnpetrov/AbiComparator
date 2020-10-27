@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.abicmp.isSynthetic
 import org.jetbrains.kotlin.abicmp.listOfNotNull
 import org.jetbrains.kotlin.abicmp.reports.ClassReport
 import org.jetbrains.kotlin.abicmp.tasks.fieldId
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
 
@@ -12,8 +13,8 @@ class FieldsListChecker : ClassChecker {
     override val name = "class.fields"
 
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
-        val fields1 = class1.fields.listOfNotNull<FieldNode>().associateBy { it.fieldId() }
-        val fields2 = class2.fields.listOfNotNull<FieldNode>().associateBy { it.fieldId() }
+        val fields1 = class1.loadFields()
+        val fields2 = class2.loadFields()
 
         val relevantFieldIds = fields1.keys.union(fields2.keys)
                 .filter {
@@ -39,3 +40,9 @@ class FieldsListChecker : ClassChecker {
         return "$this ${field.access.fieldFlags()}"
     }
 }
+
+fun ClassNode.loadFields(): Map<String, FieldNode> =
+    fields.listOfNotNull<FieldNode>().filter {
+        (it.access and Opcodes.ACC_PUBLIC) != 0 ||
+            (it.access and Opcodes.ACC_PROTECTED) != 0
+    }.associateBy { it.fieldId() }
