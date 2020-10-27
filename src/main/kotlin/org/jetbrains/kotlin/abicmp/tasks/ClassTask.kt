@@ -44,7 +44,6 @@ class ClassTask(
         val methods1 = class1.methods.listOfNotNull<MethodNode>().associateBy { it.methodId() }
         val methods2 = class2.methods.listOfNotNull<MethodNode>().associateBy { it.methodId() }
 
-
         val commonIds = methods1.keys.intersect(methods2.keys).sorted()
         for (id in commonIds) {
             val method1 = methods1[id]!!
