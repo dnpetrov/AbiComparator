@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST", "unused")
-
 package org.jetbrains.kotlin.abicmp
 
 import org.jetbrains.kotlin.abicmp.tasks.DirTask
