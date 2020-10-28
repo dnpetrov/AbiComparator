@@ -25,7 +25,7 @@ class JarReport(
     val defectReport = DefectReport()
 
     fun classLocation(classInternalName: String) =
-            Location.Class(classInternalName, jarFileName1)
+            Location.Class(jarFileName1, classInternalName)
 
     fun addInfo(info: String) {
         infoParagraphs.add(info)
