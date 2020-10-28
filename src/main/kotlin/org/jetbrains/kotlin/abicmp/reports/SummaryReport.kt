@@ -15,7 +15,7 @@ class SummaryReport {
         }
     }
 
-    fun totalClusters() = defectsByInfo.keys.size
+    fun totalUnique() = defectsByInfo.keys.size
     fun totalDefects() = defectsByInfo.values.sumBy { it.size }
 
     fun writeReport(outputFile: File) {
@@ -32,6 +32,10 @@ class SummaryReport {
     }
 
     private fun PrintWriter.writeReportBody() {
+        tag("p") {
+            println("Total defects: <b>${totalDefects()}</b>, unique: <b>${totalUnique()}</b>")
+        }
+
         for (info in defectsByInfo.keys.sorted()) {
             val locations = defectsByInfo[info]!!
             writeDefectInfo(info)
@@ -47,12 +51,11 @@ class SummaryReport {
 
     private fun PrintWriter.writeDefectInfo(info: DefectInfo) {
         tag("p") {
-            tag("code") {
-                println(info.message)
+            tag("h2") {
+                println("[${info.type.id}] ${info.type.messageText}")
             }
         }
         table {
-            tableData("type", info.type.id)
             for ((attr, value) in info.attributes) {
                 tableData(attr.htmlId, "<code>${value.toHtmlString()}</code>")
             }

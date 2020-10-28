@@ -34,7 +34,7 @@ class DirTask(
         val summaryFile = File(reportDir, "SUMMARY.html")
         println("Writing summary: $summaryFile")
         summary.writeReport(summaryFile)
-        println("Done, ${summary.totalDefects()} defects, ${summary.totalClusters()} unique")
+        println("Done, ${summary.totalDefects()} defects, ${summary.totalUnique()} unique")
     }
 
     private fun walkRecursively(subdir1: File, subdir2: File) {

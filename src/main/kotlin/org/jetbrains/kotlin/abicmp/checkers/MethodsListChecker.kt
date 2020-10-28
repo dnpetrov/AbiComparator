@@ -18,8 +18,8 @@ import org.objectweb.asm.tree.MethodNode
 class MethodsListChecker : ClassChecker {
     override val name = "class.methods"
 
-    val missing1Defect = DefectType("${name}.missing1", "Missing method in #1: [METHOD]", METHOD_A)
-    val missing2Defect = DefectType("${name}.missing2", "Missing method in #2: [METHOD]", METHOD_A)
+    val missing1Defect = DefectType("${name}.missing1", "Missing method in #1", METHOD_A)
+    val missing2Defect = DefectType("${name}.missing2", "Missing method in #2", METHOD_A)
 
     private val ignoreMissingMethod1IfMethod2LooksLikeClosureConverted = true
 

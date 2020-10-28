@@ -15,8 +15,8 @@ import org.objectweb.asm.tree.FieldNode
 class FieldsListChecker : ClassChecker {
     override val name = "class.fields"
 
-    val missing1Defect = DefectType("${name}.missing1", "Missing field in #1: [FIELD]", FIELD_A)
-    val missing2Defect = DefectType("${name}.missing2", "Missing field in #2: [FIELD]", FIELD_A)
+    val missing1Defect = DefectType("${name}.missing1", "Missing field in #1", FIELD_A)
+    val missing2Defect = DefectType("${name}.missing2", "Missing field in #2", FIELD_A)
 
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
         val fields1 = class1.loadFields()

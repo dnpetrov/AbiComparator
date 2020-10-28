@@ -61,11 +61,23 @@ class MethodReport(
             annotationDiffs.add(diff.toNamedDiffEntry(diffEntryName))
             when {
                 diff.value1 != null && diff.value2 != null ->
-                    checker.mismatchDefect.report(VALUE1_A to diff.value1, VALUE2_A to diff.value2, VP_INDEX_A to index.toString())
+                    checker.mismatchDefect.report(
+                            VP_INDEX_A to index.toString(),
+                            VALUE1_A to diff.value1,
+                            VALUE2_A to diff.value2
+                    )
                 diff.value1 == null && diff.value2 != null ->
-                    checker.missing1Defect.report(VALUE2_A to diff.value2, VP_INDEX_A to index.toString())
+                    checker.missing1Defect.report(
+                            METHOD_A to methodId,
+                            VP_INDEX_A to index.toString(),
+                            VALUE2_A to diff.value2
+                    )
                 diff.value1 != null && diff.value2 == null ->
-                    checker.missing2Defect.report(VALUE1_A to diff.value1, VP_INDEX_A to index.toString())
+                    checker.missing2Defect.report(
+                            METHOD_A to methodId,
+                            VP_INDEX_A to index.toString(),
+                            VALUE1_A to diff.value1
+                    )
             }
         }
     }

@@ -13,8 +13,8 @@ import org.objectweb.asm.tree.InnerClassNode
 class InnerClassesListChecker : ClassChecker {
     override val name = "class.innerClasses"
 
-    val missing1Defect = DefectType("${name}.missing1", "Missing inner class in #1: [INNER_CLASS]", INNER_CLASS_A)
-    val missing2Defect = DefectType("${name}.missing2", "Missing inner class in #2: [INNER_CLASS]", INNER_CLASS_A)
+    val missing1Defect = DefectType("${name}.missing1", "Missing inner class in #1", INNER_CLASS_A)
+    val missing2Defect = DefectType("${name}.missing2", "Missing inner class in #2", INNER_CLASS_A)
 
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
         val innerClasses1 = class1.loadInnerClasses()

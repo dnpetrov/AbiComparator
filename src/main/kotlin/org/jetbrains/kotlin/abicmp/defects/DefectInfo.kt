@@ -4,11 +4,13 @@ class DefectAttribute(val id: String, val htmlId: String)
 
 class DefectType(
         val id: String,
-        val messageFormat: String,
+        val messageText: String,
         vararg val requiredAttributes: DefectAttribute
 ) : Comparable<DefectType> {
     override fun compareTo(other: DefectType): Int =
             id.compareTo(other.id)
+
+    override fun hashCode(): Int = id.hashCode()
 }
 
 class DefectInfo(
@@ -24,8 +26,6 @@ class DefectInfo(
             }
         }
     }
-
-    val message = formatMessage()
 
     operator fun get(key: DefectAttribute) = attributes[key]
 
@@ -50,18 +50,5 @@ class DefectInfo(
             other is DefectInfo && compareTo(other) == 0
 
     override fun hashCode(): Int =
-            message.hashCode()
-}
-
-fun DefectInfo.formatMessage(): String {
-    var message = type.messageFormat
-    for ((attr, value) in attributes) {
-        message = message.replace("[${attr.id}]", value, ignoreCase = false)
-    }
-    val result = StringBuilder()
-    result.append("[")
-    result.append(type.id)
-    result.append("] ")
-    result.append(message)
-    return result.toString()
+            type.hashCode()
 }

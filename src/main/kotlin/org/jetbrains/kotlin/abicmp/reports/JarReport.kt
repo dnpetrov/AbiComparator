@@ -5,8 +5,8 @@ import org.jetbrains.kotlin.abicmp.tag
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
 
-val MISSING_CLASS1_D = DefectType("jar.missingClass1", "Missing class [CLASS] in [JAR_FILE1]", CLASS_A, JAR_FILE1_A)
-val MISSING_CLASS2_D = DefectType("jar.missingClass2", "Missing class [CLASS] in [JAR_FILE2]", CLASS_A, JAR_FILE2_A)
+val MISSING_CLASS1_D = DefectType("jar.missingClass1", "Missing class in #1", CLASS_A, JAR_FILE1_A)
+val MISSING_CLASS2_D = DefectType("jar.missingClass2", "Missing class in #2", CLASS_A, JAR_FILE2_A)
 
 class JarReport(
         private val header: String,

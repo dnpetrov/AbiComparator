@@ -13,7 +13,7 @@ interface Checker {
 
 
 abstract class PropertyChecker<T, E>(final override val name: String) : Checker {
-    protected val defectType = DefectType(this.name, "Values mismatch: [VALUE1] != [VALUE2]", VALUE1_A, VALUE2_A)
+    protected val defectType = DefectType(this.name, "Attribute value mismatch", VALUE1_A, VALUE2_A)
 
     protected open fun areEqual(value1: T, value2: T) =
             value1 == value2
@@ -33,7 +33,7 @@ abstract class AnnotationsChecker<N>(
     protected fun getAnnotations(node: N) =
             annotationsProperty.get(node).orEmpty().toAnnotations()
 
-    val mismatchDefect = DefectType("${name}.mismatch", "Annotations mismatch: [VALUE1] != [VALUE2]", VALUE1_A, VALUE2_A)
-    val missing1Defect = DefectType("${name}.missing1", "Missing annotation in #1: [VALUE2]", VALUE2_A)
-    val missing2Defect = DefectType("${name}.missing2", "Missing annotation in #2: [VALUE1]", VALUE1_A)
+    val mismatchDefect = DefectType("${name}.mismatch", "Annotation value mismatch", VALUE1_A, VALUE2_A)
+    val missing1Defect = DefectType("${name}.missing1", "Missing annotation in #1", VALUE2_A)
+    val missing2Defect = DefectType("${name}.missing2", "Missing annotation in #2", VALUE1_A)
 }

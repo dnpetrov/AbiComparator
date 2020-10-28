@@ -1,10 +1,7 @@
 package org.jetbrains.kotlin.abicmp.checkers
 
 import org.jetbrains.kotlin.abicmp.compareAnnotations
-import org.jetbrains.kotlin.abicmp.defects.DefectType
-import org.jetbrains.kotlin.abicmp.defects.VALUE1_A
-import org.jetbrains.kotlin.abicmp.defects.VALUE2_A
-import org.jetbrains.kotlin.abicmp.defects.VP_INDEX_A
+import org.jetbrains.kotlin.abicmp.defects.*
 import org.jetbrains.kotlin.abicmp.reports.MethodReport
 import org.jetbrains.kotlin.abicmp.reports.NamedDiffEntry
 import org.jetbrains.kotlin.abicmp.toAnnotations
@@ -85,9 +82,9 @@ class MethodParameterAnnotationsChecker(
 
     override val name = "method.parameters.${parameterAnnotationsProperty.name}"
 
-    val mismatchDefect = DefectType("${name}.mismatch", "Value parameter [VP_INDEX] annotation mismatch: [VALUE1] != [VALUE2]", VALUE1_A, VALUE2_A, VP_INDEX_A)
-    val missing1Defect = DefectType("${name}.missing1", "Missing value parameter [VP_INDEX] annotation in #1: [VALUE2]", VALUE2_A, VP_INDEX_A)
-    val missing2Defect = DefectType("${name}.missing2", "Missing value parameter [VP_INDEX] annotation in #2: [VALUE1]", VALUE1_A, VP_INDEX_A)
+    val mismatchDefect = DefectType("${name}.mismatch", "Value parameter annotation mismatch", METHOD_A, VP_INDEX_A, VALUE1_A, VALUE2_A)
+    val missing1Defect = DefectType("${name}.missing1", "Missing value parameter annotation in #1", METHOD_A, VP_INDEX_A, VALUE2_A)
+    val missing2Defect = DefectType("${name}.missing2", "Missing value parameter annotation in #2", METHOD_A, VP_INDEX_A, VALUE1_A)
 
     override fun check(method1: MethodNode, method2: MethodNode, report: MethodReport) {
         val paramAnnsList1 = parameterAnnotationsProperty.get(method1)?.toList().orEmpty()
