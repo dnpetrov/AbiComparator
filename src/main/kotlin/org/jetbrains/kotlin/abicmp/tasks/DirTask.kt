@@ -1,5 +1,6 @@
 package org.jetbrains.kotlin.abicmp.tasks
 
+import org.jetbrains.kotlin.abicmp.reports.SummaryReport
 import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -19,13 +20,21 @@ class DirTask(
     private val executor = Executors.newWorkStealingPool()
 
     private val lastNameIndex = HashMap<String, Int>()
-    private val tasks = ArrayList<Future<*>>()
+    private val tasks = ArrayList<Pair<JarTask, Future<*>>>()
 
     override fun run() {
         println("Comparing directories: $dir1, $dir2")
         walkRecursively(dir1, dir2)
-        tasks.forEach { it.get() }
-        println("Done")
+        val summary = SummaryReport()
+        tasks.forEach { (jarTask, future) ->
+            future.get()
+            summary.add(jarTask.defectReport)
+        }
+
+        val summaryFile = File(reportDir, "SUMMARY.html")
+        println("Writing summary: $summaryFile")
+        summary.writeReport(summaryFile)
+        println("Done, ${summary.totalDefects()} defects, ${summary.totalClusters()} unique")
     }
 
     private fun walkRecursively(subdir1: File, subdir2: File) {
@@ -51,7 +60,7 @@ class DirTask(
                             header1, header2,
                             reportFile, checkerConfiguration
                     )
-                    tasks.add(executor.submit(jarTask))
+                    tasks.add(jarTask to executor.submit(jarTask))
                 }
             }
         }

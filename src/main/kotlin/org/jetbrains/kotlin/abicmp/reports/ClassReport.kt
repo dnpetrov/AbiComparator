@@ -1,14 +1,24 @@
 package org.jetbrains.kotlin.abicmp.reports
 
 import org.jetbrains.kotlin.abicmp.*
+import org.jetbrains.kotlin.abicmp.checkers.ClassAnnotationsChecker
+import org.jetbrains.kotlin.abicmp.checkers.FieldsListChecker
+import org.jetbrains.kotlin.abicmp.checkers.InnerClassesListChecker
+import org.jetbrains.kotlin.abicmp.checkers.MethodsListChecker
+import org.jetbrains.kotlin.abicmp.defects.*
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
 
+val METADATA_DIFF_D = DefectType("class.metadataDiff", "Difference in metadata", VALUE1_A, VALUE2_A)
+
 class ClassReport(
+        private val location: Location.Class,
         val classInternalName: String,
         val header1: String,
-        val header2: String
+        val header2: String,
+        private val defectReport: DefectReport
 ) : ComparisonReport {
+
     private val infoParagraphs = ArrayList<String>()
 
     private val metadataDiff = ArrayList<TextDiffEntry>()
@@ -16,8 +26,9 @@ class ClassReport(
     private val annotationDiffs = ArrayList<NamedDiffEntry>()
     private val innerClassesDiffs = ArrayList<DiffEntry>()
     private val methodListDiffs = ArrayList<DiffEntry>()
-    private val methodReports = ArrayList<MethodReport>()
     private val fieldListDiffs = ArrayList<DiffEntry>()
+
+    private val methodReports = ArrayList<MethodReport>()
     private val fieldReports = ArrayList<FieldReport>()
 
     override fun isEmpty(): Boolean =
@@ -42,43 +53,71 @@ class ClassReport(
         addInfo(String(bytes.toByteArray()))
     }
 
+    private fun DefectType.report(vararg attributes: Pair<DefectAttribute, String>) {
+        defectReport.report(this, location, *attributes)
+    }
+
     fun addMetadataDiff(diff: TextDiffEntry) {
         metadataDiff.add(diff)
+        METADATA_DIFF_D.report(VALUE1_A to diff.lines1.joinToString("\n"), VALUE2_A to diff.lines2.joinToString("\n"))
     }
 
-    fun addPropertyDiff(diff: NamedDiffEntry) {
+    fun addPropertyDiff(defectType: DefectType, diff: NamedDiffEntry) {
         propertyDiffs.add(diff)
+        defectType.report(VALUE1_A to diff.value1, VALUE2_A to diff.value2)
     }
 
-    fun addAnnotationDiffs(name: String, values1: List<String>, values2: List<String>) {
-        values1.zip(values2).forEach { (v1, v2) ->
-            annotationDiffs.add(NamedDiffEntry(name, v1, v2))
+    fun addAnnotationDiffs(checker: ClassAnnotationsChecker, diffs: List<ListEntryDiff>) {
+        for (diff in diffs) {
+            annotationDiffs.add(NamedDiffEntry(checker.name, diff.value1 ?: "---", diff.value2 ?: "---"))
+            when {
+                diff.value1 != null && diff.value2 != null ->
+                    checker.mismatchDefect.report(VALUE1_A to diff.value1, VALUE2_A to diff.value2)
+                diff.value1 == null && diff.value2 != null ->
+                    checker.missing1Defect.report(VALUE2_A to diff.value2)
+                diff.value1 != null && diff.value2 == null ->
+                    checker.missing2Defect.report(VALUE1_A to diff.value1)
+            }
         }
     }
 
-    fun addInnerClassesDiffs(values1: List<String>, values2: List<String>) {
-        values1.zip(values2).forEach { (v1, v2) ->
-            innerClassesDiffs.add(DiffEntry(v1, v2))
+    fun addInnerClassesDiffs(checker: InnerClassesListChecker, diffs: List<ListEntryDiff>) {
+        for (diff in diffs) {
+            innerClassesDiffs.add(diff.toDiffEntry())
+            reportMissing(diff, checker.missing1Defect, checker.missing2Defect, INNER_CLASS_A)
         }
     }
 
-    fun addMethodListDiffs(values1: List<String>, values2: List<String>) {
-        values1.zip(values2).forEach { (v1, v2) ->
-            methodListDiffs.add(DiffEntry(v1, v2))
+    fun addMethodListDiffs(checker: MethodsListChecker, diffs: List<ListEntryDiff>) {
+        for (diff in diffs) {
+            methodListDiffs.add(diff.toDiffEntry())
+            reportMissing(diff, checker.missing1Defect, checker.missing2Defect, METHOD_A)
         }
     }
 
-    fun addFieldListDiffs(values1: List<String>, values2: List<String>) {
-        values1.zip(values2).forEach { (v1, v2) ->
-            fieldListDiffs.add(DiffEntry(v1, v2))
+    fun addFieldListDiffs(checker: FieldsListChecker, diffs: List<ListEntryDiff>) {
+        for (diff in diffs) {
+            fieldListDiffs.add(diff.toDiffEntry())
+            reportMissing(diff, checker.missing1Defect, checker.missing2Defect, FIELD_A)
+        }
+    }
+
+    private fun reportMissing(diff: ListEntryDiff, missing1: DefectType, missing2: DefectType, attr: DefectAttribute) {
+        when {
+            diff.value1 == null && diff.value2 != null ->
+                missing1.report(attr to diff.value2)
+            diff.value1 != null && diff.value2 == null ->
+                missing2.report(attr to diff.value1)
         }
     }
 
     fun methodReport(methodId: String): MethodReport =
-            MethodReport(methodId, header1, header2).also { methodReports.add(it) }
+            MethodReport(location.method(methodId), methodId, header1, header2, defectReport)
+                    .also { methodReports.add(it) }
 
     fun fieldReport(fieldId: String): FieldReport =
-            FieldReport(fieldId, header1, header2).also { fieldReports.add(it) }
+            FieldReport(location.field(fieldId), fieldId, header1, header2, defectReport)
+                    .also { fieldReports.add(it) }
 
     private fun getFilteredMethodReports() =
             methodReports.filter { !it.isEmpty() }.sortedBy { it.methodId }

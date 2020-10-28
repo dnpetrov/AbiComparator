@@ -1,14 +1,20 @@
 package org.jetbrains.kotlin.abicmp.checkers
 
 import org.jetbrains.kotlin.abicmp.classFlags
+import org.jetbrains.kotlin.abicmp.defects.DefectType
+import org.jetbrains.kotlin.abicmp.defects.INNER_CLASS_A
 import org.jetbrains.kotlin.abicmp.isSynthetic
 import org.jetbrains.kotlin.abicmp.listOfNotNull
 import org.jetbrains.kotlin.abicmp.reports.ClassReport
+import org.jetbrains.kotlin.abicmp.reports.ListEntryDiff
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.InnerClassNode
 
 class InnerClassesListChecker : ClassChecker {
     override val name = "class.innerClasses"
+
+    val missing1Defect = DefectType("${name}.missing1", "Missing inner class in #1: [INNER_CLASS]", INNER_CLASS_A)
+    val missing2Defect = DefectType("${name}.missing2", "Missing inner class in #2: [INNER_CLASS]", INNER_CLASS_A)
 
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
         val innerClasses1 = class1.loadInnerClasses()
@@ -27,11 +33,12 @@ class InnerClassesListChecker : ClassChecker {
         val listDiff = compareLists(innerClassNames1, innerClassNames2) ?: return
 
         report.addInnerClassesDiffs(
-                listDiff.diff1.map {
-                    innerClasses1[it]?.toInnerClassLine() ?: "---"
-                },
-                listDiff.diff2.map {
-                    innerClasses2[it]?.toInnerClassLine() ?: "---"
+                this,
+                listDiff.map {
+                    ListEntryDiff(
+                            it.value1?.let { v1 -> innerClasses1[v1]?.toInnerClassLine() },
+                            it.value2?.let { v2 -> innerClasses2[v2]?.toInnerClassLine() }
+                    )
                 }
         )
     }

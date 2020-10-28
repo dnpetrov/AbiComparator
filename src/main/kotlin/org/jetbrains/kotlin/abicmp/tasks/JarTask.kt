@@ -31,6 +31,8 @@ class JarTask(
 
     private val report = JarReport(header, header1, header2, jarFile1.name, jarFile2.name)
 
+    val defectReport get() = report.defectReport
+
     private var totalDiffs = 0
 
     private val names1 = HashSet<String>()

@@ -23,6 +23,7 @@ abstract class FieldPropertyChecker<T>(name: String) :
         val value2 = getProperty(field2)
         if (!areEqual(value1, value2)) {
             report.addPropertyDiff(
+                    defectType,
                     NamedDiffEntry(
                             name,
                             valueToHtml(value1, value2),
@@ -64,9 +65,8 @@ class FieldAnnotationsChecker(
         annotationsProperty: KProperty1<FieldNode, List<Any?>?>,
         val ignoreNullabilityAnnotationsInIrBuild: Boolean = false
 ) :
-        AnnotationsChecker<FieldNode>(annotationsProperty), FieldChecker {
-
-    override val name: String = "field.${annotationsProperty.name}"
+        AnnotationsChecker<FieldNode>("field.${annotationsProperty.name}", annotationsProperty),
+        FieldChecker {
 
     override fun check(field1: FieldNode, field2: FieldNode, report: FieldReport) {
         val anns1 = getAnnotations(field1)
@@ -79,8 +79,8 @@ class FieldAnnotationsChecker(
                     anns2.filter { it.desc !in NULLABILITY_ANNOTATIONS }
                 else
                     anns2
-        val listDiff = compareAnnotations(anns1, anns2filtered) ?: return
-        report.addAnnotationDiffs(name, listDiff.diff1, listDiff.diff2)
+        val annDiff = compareAnnotations(anns1, anns2filtered) ?: return
+        report.addAnnotationDiffs(this, annDiff)
     }
 }
 

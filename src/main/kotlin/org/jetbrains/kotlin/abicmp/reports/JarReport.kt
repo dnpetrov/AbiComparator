@@ -1,8 +1,12 @@
 package org.jetbrains.kotlin.abicmp.reports
 
+import org.jetbrains.kotlin.abicmp.defects.*
 import org.jetbrains.kotlin.abicmp.tag
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
+
+val MISSING_CLASS1_D = DefectType("jar.missingClass1", "Missing class [CLASS] in [JAR_FILE1]", CLASS_A, JAR_FILE1_A)
+val MISSING_CLASS2_D = DefectType("jar.missingClass2", "Missing class [CLASS] in [JAR_FILE2]", CLASS_A, JAR_FILE2_A)
 
 class JarReport(
         private val header: String,
@@ -18,6 +22,11 @@ class JarReport(
     private val missingClassNames1 = HashSet<String>()
     private val missingClassNames2 = HashSet<String>()
 
+    val defectReport = DefectReport()
+
+    fun classLocation(classInternalName: String) =
+            Location.Class(classInternalName, jarFileName1)
+
     fun addInfo(info: String) {
         infoParagraphs.add(info)
     }
@@ -31,22 +40,37 @@ class JarReport(
     }
 
     fun classReport(classInternalName: String) =
-            ClassReport(classInternalName, header1, header2).also { classReports.add(it) }
+            ClassReport(classLocation(classInternalName), classInternalName, header1, header2, defectReport)
+                    .also { classReports.add(it) }
 
     private fun getFilteredClassReports(): List<ClassReport> =
             classReports.filter { !it.isEmpty() }.sortedBy { it.classInternalName }
 
+    private val jar1Location = Location.JarFile(jarFileName1)
+    private val jar2Location = Location.JarFile(jarFileName2)
+
     fun addMissingClassName1(classInternalName: String) {
         missingClassNames1.add(classInternalName)
+        defectReport.report(
+                MISSING_CLASS1_D,
+                jar1Location,
+                CLASS_A to classInternalName,
+                JAR_FILE1_A to jarFileName1
+        )
     }
 
     fun addMissingClassName2(classInternalName: String) {
         missingClassNames2.add(classInternalName)
+        defectReport.report(
+                MISSING_CLASS2_D,
+                jar2Location,
+                CLASS_A to classInternalName,
+                JAR_FILE2_A to jarFileName2
+        )
     }
 
     override fun isEmpty(): Boolean =
-            missingClassNames1.isEmpty() && missingClassNames2.isEmpty() &&
-                    getFilteredClassReports().isEmpty()
+            defectReport.isEmpty()
 
     override fun write(output: PrintWriter) {
         output.tag("h1", header)

@@ -1,9 +1,12 @@
 package org.jetbrains.kotlin.abicmp.checkers
 
+import org.jetbrains.kotlin.abicmp.defects.DefectType
+import org.jetbrains.kotlin.abicmp.defects.FIELD_A
 import org.jetbrains.kotlin.abicmp.fieldFlags
 import org.jetbrains.kotlin.abicmp.isSynthetic
 import org.jetbrains.kotlin.abicmp.listOfNotNull
 import org.jetbrains.kotlin.abicmp.reports.ClassReport
+import org.jetbrains.kotlin.abicmp.reports.ListEntryDiff
 import org.jetbrains.kotlin.abicmp.tasks.fieldId
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
@@ -11,6 +14,9 @@ import org.objectweb.asm.tree.FieldNode
 
 class FieldsListChecker : ClassChecker {
     override val name = "class.fields"
+
+    val missing1Defect = DefectType("${name}.missing1", "Missing field in #1: [FIELD]", FIELD_A)
+    val missing2Defect = DefectType("${name}.missing2", "Missing field in #2: [FIELD]", FIELD_A)
 
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
         val fields1 = class1.loadFields()
@@ -30,8 +36,13 @@ class FieldsListChecker : ClassChecker {
 
         val listDiff = compareLists(fieldIds1, fieldIds2) ?: return
         report.addFieldListDiffs(
-                listDiff.diff1.map { it.toFieldWithFlags(fields1) },
-                listDiff.diff2.map { it.toFieldWithFlags(fields2) }
+                this,
+                listDiff.map {
+                    ListEntryDiff(
+                            it.value1?.toFieldWithFlags(fields1),
+                            it.value2?.toFieldWithFlags(fields2)
+                    )
+                }
         )
     }
 

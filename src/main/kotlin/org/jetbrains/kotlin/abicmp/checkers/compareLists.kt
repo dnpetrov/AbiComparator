@@ -1,13 +1,9 @@
 package org.jetbrains.kotlin.abicmp.checkers
 
-import org.jetbrains.kotlin.abicmp.reports.ListDiff
+import org.jetbrains.kotlin.abicmp.reports.ListEntryDiff
 
-const val MISSING = "---"
-
-fun compareLists(list1: List<String>, list2: List<String>): ListDiff? {
-    var hasDiff = false
-    val diffs1 = ArrayList<String>()
-    val diffs2 = ArrayList<String>()
+fun compareLists(list1: List<String>, list2: List<String>): List<ListEntryDiff>? {
+    val result = ArrayList<ListEntryDiff>()
     var i1 = 0
     var i2 = 0
     while (i1 < list1.size || i2 < list2.size) {
@@ -20,33 +16,27 @@ fun compareLists(list1: List<String>, list2: List<String>): ListDiff? {
             continue
         }
 
-        hasDiff = true
-
         when {
             s1 == null && s2 == null ->
                 break // really should not happen
             s1 == null -> {
-                diffs1.add(MISSING)
-                diffs2.add(s2!!)
+                result.add(ListEntryDiff(null, s2))
                 ++i2
             }
             s2 == null -> {
-                diffs1.add(s1)
-                diffs2.add(MISSING)
+                result.add(ListEntryDiff(s1, null))
                 ++i1
             }
             s1 < s2 -> {
-                diffs1.add(s1)
-                diffs2.add(MISSING)
+                result.add(ListEntryDiff(s1, null))
                 ++i1
             }
             s1 > s2 -> {
-                diffs1.add(MISSING)
-                diffs2.add(s2)
+                result.add(ListEntryDiff(null, s2))
                 ++i2
             }
         }
     }
 
-    return if (hasDiff) ListDiff(diffs1, diffs2) else null
+    return if (result.isEmpty()) null else result
 }

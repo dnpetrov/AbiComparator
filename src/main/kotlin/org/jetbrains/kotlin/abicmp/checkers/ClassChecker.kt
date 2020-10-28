@@ -19,6 +19,7 @@ abstract class ClassPropertyChecker<T>(name: String) :
         val value2 = getProperty(class2)
         if (!areEqual(value1, value2)) {
             report.addPropertyDiff(
+                    defectType,
                     NamedDiffEntry(
                             name,
                             valueToHtml(value1, value2),
@@ -51,14 +52,12 @@ fun <T> classPropertyChecker(name: String, classProperty: KProperty1<ClassNode, 
         classPropertyChecker(name) { classProperty.get(it) }
 
 class ClassAnnotationsChecker(annotationsProperty: KProperty1<ClassNode, List<Any?>?>) :
-        AnnotationsChecker<ClassNode>(annotationsProperty), ClassChecker {
-
-    override val name = "class.${annotationsProperty.name}"
+        AnnotationsChecker<ClassNode>("class.${annotationsProperty.name}", annotationsProperty),
+        ClassChecker {
 
     override fun check(class1: ClassNode, class2: ClassNode, report: ClassReport) {
         val anns1 = getAnnotations(class1)
         val anns2 = getAnnotations(class2)
-        val listDiff = compareAnnotations(anns1, anns2) ?: return
-        report.addAnnotationDiffs(name, listDiff.diff1, listDiff.diff2)
+        report.addAnnotationDiffs(this, compareAnnotations(anns1, anns2) ?: return)
     }
 }

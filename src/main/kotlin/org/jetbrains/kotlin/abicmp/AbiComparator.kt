@@ -19,9 +19,7 @@ private fun checkKotlin() {
     val header2 = "JVM_IR"
 
     val checkerConfiguration = checkerConfiguration {}
-//    val checkerConfiguration = checkerConfiguration {
-//        enableExclusively("class.metadata")
-//    }
+
 
     val reportDir = File(reportPath)
     reportDir.deleteRecursively()

@@ -1,10 +1,15 @@
 package org.jetbrains.kotlin.abicmp.checkers
 
+import org.jetbrains.kotlin.abicmp.defects.DefectType
+import org.jetbrains.kotlin.abicmp.defects.METHOD_A
+import org.jetbrains.kotlin.abicmp.defects.VALUE1_A
+import org.jetbrains.kotlin.abicmp.defects.VALUE2_A
 import org.jetbrains.kotlin.abicmp.isPrivate
 import org.jetbrains.kotlin.abicmp.isSynthetic
 import org.jetbrains.kotlin.abicmp.listOfNotNull
 import org.jetbrains.kotlin.abicmp.methodFlags
 import org.jetbrains.kotlin.abicmp.reports.ClassReport
+import org.jetbrains.kotlin.abicmp.reports.ListEntryDiff
 import org.jetbrains.kotlin.abicmp.tasks.methodId
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
@@ -12,6 +17,9 @@ import org.objectweb.asm.tree.MethodNode
 
 class MethodsListChecker : ClassChecker {
     override val name = "class.methods"
+
+    val missing1Defect = DefectType("${name}.missing1", "Missing method in #1: [METHOD]", METHOD_A)
+    val missing2Defect = DefectType("${name}.missing2", "Missing method in #2: [METHOD]", METHOD_A)
 
     private val ignoreMissingMethod1IfMethod2LooksLikeClosureConverted = true
 
@@ -32,8 +40,13 @@ class MethodsListChecker : ClassChecker {
 
         val listDiff = compareLists(methodIds1, methodIds2) ?: return
         report.addMethodListDiffs(
-                listDiff.diff1.map { it.toMethodWithFlags(methods1) },
-                listDiff.diff2.map { it.toMethodWithFlags(methods2) }
+                this,
+                listDiff.map {
+                    ListEntryDiff(
+                            it.value1?.toMethodWithFlags(methods1),
+                            it.value2?.toMethodWithFlags(methods2)
+                    )
+                }
         )
     }
 

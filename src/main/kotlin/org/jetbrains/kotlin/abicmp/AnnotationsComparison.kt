@@ -1,6 +1,6 @@
 package org.jetbrains.kotlin.abicmp
 
-import org.jetbrains.kotlin.abicmp.reports.ListDiff
+import org.jetbrains.kotlin.abicmp.reports.ListEntryDiff
 import org.objectweb.asm.Type
 
 val IGNORED_ANNOTATIONS = listOf("Lkotlin/Metadata;", "Lkotlin/coroutines/jvm/internal/DebugMetadata;")
@@ -8,14 +8,11 @@ val IGNORED_ANNOTATIONS = listOf("Lkotlin/Metadata;", "Lkotlin/coroutines/jvm/in
 fun compareAnnotations(
         annotations1: List<AnnotationEntry>,
         annotations2: List<AnnotationEntry>
-) : ListDiff? {
-    var hasDiff = false
-
+) : List<ListEntryDiff>? {
     val anns1Sorted = annotations1.preprocessAnnotations()
     val anns2Sorted = annotations2.preprocessAnnotations()
 
-    val diff1 = ArrayList<String>()
-    val diff2 = ArrayList<String>()
+    val result = ArrayList<ListEntryDiff>()
 
     var i1 = 0
     var i2 = 0
@@ -30,46 +27,37 @@ fun compareAnnotations(
             if (ann1.fullString() == ann2.fullString()) {
                 ++i1
                 ++i2
-                diff1.add("== ${ann1.shortString()}")
-                diff2.add("== ${ann2.shortString()}")
             } else {
-                hasDiff = true
                 when {
                     ann1.desc == ann2.desc -> {
                         ++i1
                         ++i2
-                        diff1.add("!= ${ann1.fullString()}")
-                        diff2.add("!= ${ann2.fullString()}")
+                        result.add(ListEntryDiff(ann1.fullString(), ann2.fullString()))
                     }
                     ann1.desc < ann2.desc -> {
                         ++i1
-                        diff1.add("+ ${ann1.shortString()}")
-                        diff2.add("---")
+                        result.add(ListEntryDiff(ann1.fullString(), null))
                     }
                     else -> {
                         ++i2
-                        diff1.add("---")
-                        diff2.add("+ ${ann2.shortString()}")
+                        result.add(ListEntryDiff(null, ann2.fullString()))
                     }
                 }
             }
         } else {
-            hasDiff = true
             if (i1 < size1) {
                 val ann1 = anns1Sorted[i1]
                 ++i1
-                diff1.add("+ ${ann1.shortString()}")
-                diff2.add("---")
+                result.add(ListEntryDiff(ann1.fullString(), null))
             } else {
                 val ann2 = anns2Sorted[i2]
                 ++i2
-                diff1.add("---")
-                diff2.add("+ ${ann2.shortString()}")
+                result.add(ListEntryDiff(null, ann2.fullString()))
             }
         }
     }
 
-    return if (hasDiff) ListDiff(diff1, diff2) else null
+    return if (result.isEmpty()) null else result
 }
 
 private fun List<AnnotationEntry>.preprocessAnnotations() =

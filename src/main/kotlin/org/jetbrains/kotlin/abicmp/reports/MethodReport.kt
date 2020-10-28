@@ -1,14 +1,19 @@
 package org.jetbrains.kotlin.abicmp.reports
 
+import org.jetbrains.kotlin.abicmp.checkers.MethodAnnotationsChecker
+import org.jetbrains.kotlin.abicmp.checkers.MethodParameterAnnotationsChecker
+import org.jetbrains.kotlin.abicmp.defects.*
 import org.jetbrains.kotlin.abicmp.escapeHtml
 import org.jetbrains.kotlin.abicmp.tag
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
 
 class MethodReport(
+        private val location: Location.Method,
         val methodId: String,
         val header1: String,
-        val header2: String
+        val header2: String,
+        private val defectReport: DefectReport
 ) : ComparisonReport {
     private val infoParagraphs = ArrayList<String>()
 
@@ -27,13 +32,41 @@ class MethodReport(
         addInfo(String(bytes.toByteArray()))
     }
 
-    fun addPropertyDiff(diff: NamedDiffEntry) {
-        propertyDiffs.add(diff)
+    private fun DefectType.report(vararg attributes: Pair<DefectAttribute, String>) {
+        defectReport.report(this, location, *attributes)
     }
 
-    fun addAnnotationDiffs(name: String, values1: List<String>, values2: List<String>) {
-        values1.zip(values2).forEach { (v1, v2) ->
-            annotationDiffs.add(NamedDiffEntry(name, v1, v2))
+    fun addPropertyDiff(defectType: DefectType, diff: NamedDiffEntry) {
+        propertyDiffs.add(diff)
+        defectType.report(VALUE1_A to diff.value1, VALUE2_A to diff.value2)
+    }
+
+    fun addAnnotationDiffs(checker: MethodAnnotationsChecker, diffs: List<ListEntryDiff>) {
+        for (diff in diffs) {
+            annotationDiffs.add(diff.toNamedDiffEntry(checker.name))
+            when {
+                diff.value1 != null && diff.value2 != null ->
+                    checker.mismatchDefect.report(VALUE1_A to diff.value1, VALUE2_A to diff.value2)
+                diff.value1 == null && diff.value2 != null ->
+                    checker.missing1Defect.report(VALUE2_A to diff.value2)
+                diff.value1 != null && diff.value2 == null ->
+                    checker.missing2Defect.report(VALUE1_A to diff.value1)
+            }
+        }
+    }
+
+    fun addValueParameterAnnotationDiffs(checker: MethodParameterAnnotationsChecker, index: Int, diffs: List<ListEntryDiff>) {
+        val diffEntryName = "${checker.name}.p$index"
+        for (diff in diffs) {
+            annotationDiffs.add(diff.toNamedDiffEntry(diffEntryName))
+            when {
+                diff.value1 != null && diff.value2 != null ->
+                    checker.mismatchDefect.report(VALUE1_A to diff.value1, VALUE2_A to diff.value2, VP_INDEX_A to index.toString())
+                diff.value1 == null && diff.value2 != null ->
+                    checker.missing1Defect.report(VALUE2_A to diff.value2, VP_INDEX_A to index.toString())
+                diff.value1 != null && diff.value2 == null ->
+                    checker.missing2Defect.report(VALUE1_A to diff.value1, VP_INDEX_A to index.toString())
+            }
         }
     }
 
