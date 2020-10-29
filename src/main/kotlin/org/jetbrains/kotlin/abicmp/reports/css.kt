@@ -13,6 +13,10 @@ td {
   background: #EFEFB0;
   vertical-align: top;
 }
+td.location {
+  background: #E0E0E0;
+  vertical-align: top;
+}
 hr {
   border: 1px solid black;
   border-collapse: collapse;

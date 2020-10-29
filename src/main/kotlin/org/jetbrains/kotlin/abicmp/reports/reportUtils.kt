@@ -3,14 +3,14 @@ package org.jetbrains.kotlin.abicmp.reports
 import org.jetbrains.kotlin.abicmp.*
 import java.io.PrintWriter
 
-fun String.tag(tagName: String) = "<$tagName>$this</$tagName>"
+fun String.withTag(tagName: String) = "<$tagName>$this</$tagName>"
 
 fun PrintWriter.propertyDiffTable(header1: String, header2: String, propertyDiffs: List<NamedDiffEntry>) {
     if (propertyDiffs.isNotEmpty()) {
         table {
             tableHeader("Property", header1, header2)
             for (pd in propertyDiffs) {
-                tableData(pd.name, pd.value1.tag("code"), pd.value2.tag("code"))
+                tableData(pd.name, pd.value1.withTag("code"), pd.value2.withTag("code"))
             }
         }
         println("&nbsp;")
@@ -22,7 +22,7 @@ fun PrintWriter.annotationDiffTable(header1: String, header2: String, annotation
         table {
             tableHeader("Annotation", header1, header2)
             for (ad in annotationDiffs) {
-                tableData(ad.name, ad.value1.escapeHtml().tag("code"), ad.value2.escapeHtml().tag("code"))
+                tableData(ad.name, ad.value1.escapeHtml().withTag("code"), ad.value2.escapeHtml().withTag("code"))
             }
         }
         println("&nbsp;")
@@ -34,7 +34,7 @@ fun PrintWriter.listDiff(header1: String, header2: String, listDiffs: List<DiffE
         table {
             tableHeader(header1, header2)
             for (me in listDiffs) {
-                tableData(me.value1.escapeHtml().tag("code"), me.value2.escapeHtml().tag("code"))
+                tableData(me.value1.escapeHtml().withTag("code"), me.value2.escapeHtml().withTag("code"))
             }
         }
         println("&nbsp;")

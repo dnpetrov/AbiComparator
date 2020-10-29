@@ -3,6 +3,8 @@ package org.jetbrains.kotlin.abicmp
 import org.apache.commons.text.StringEscapeUtils
 import java.io.PrintWriter
 
+const val NON_BREAKING_HYPHEN = "&#8209;"
+
 fun String?.escapeHtml(): String {
     if (this == null) return "NULL"
     return StringEscapeUtils.escapeHtml4(this)
@@ -46,3 +48,14 @@ fun PrintWriter.tableData(vararg data: String) {
         }
     }
 }
+
+fun PrintWriter.tableDataWithClass(tdClass: String, vararg data: String) {
+    println("<tr>")
+    for (d in data) {
+        println("<td class=\"$tdClass\">$d</td>")
+    }
+    println("</tr>")
+}
+
+fun Any.tag(tagName: String) =
+        "<$tagName>$this</$tagName>"

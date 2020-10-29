@@ -12,8 +12,6 @@ sealed class Location : Comparable<Location> {
 
     abstract val kind: Kind
 
-    abstract fun reportString(): String
-
     override fun compareTo(other: Location): Int =
             compareValuesBy(
                     this, other,
@@ -28,7 +26,6 @@ sealed class Location : Comparable<Location> {
             override val jarFileName: String
     ) : Location() {
         override val kind get() = Kind.JAR_FILE
-        override fun reportString(): String = "Jar file $jarFileName"
     }
 
     data class Class(
@@ -36,7 +33,6 @@ sealed class Location : Comparable<Location> {
             override val className: String
     ) : Location() {
         override val kind get() = Kind.CLASS
-        override fun reportString(): String = "Class $className in jar file $jarFileName"
         fun method(methodName: String) = Method(jarFileName, className, methodName)
         fun field(fieldName: String) = Field(jarFileName, className, fieldName)
     }
@@ -47,7 +43,6 @@ sealed class Location : Comparable<Location> {
             override val methodName: String
     ) : Location() {
         override val kind get() = Kind.METHOD
-        override fun reportString(): String = "Method $methodName in class $className, jar file $jarFileName"
     }
 
     data class Field(
@@ -56,6 +51,5 @@ sealed class Location : Comparable<Location> {
             override val fieldName: String
     ) : Location() {
         override val kind get() = Kind.FIELD
-        override fun reportString(): String = "Field $fieldName in class $className, jar file $jarFileName"
     }
 }
