@@ -20,6 +20,9 @@ fun Int.isPrivate() =
 fun Int.isSynthetic() =
         this and Opcodes.ACC_SYNTHETIC != 0
 
+fun Int.isBridge() =
+        this and Opcodes.ACC_BRIDGE != 0
+
 fun Int.classFlags() =
         flagsList(CLASS_FLAGS)
 

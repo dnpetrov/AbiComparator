@@ -3,10 +3,6 @@ package org.jetbrains.kotlin.abicmp.metadata
 import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import org.jetbrains.kotlin.abicmp.listOfNotNull
-import org.jetbrains.kotlin.abicmp.toAnnotation
-import org.objectweb.asm.AnnotationVisitor
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode

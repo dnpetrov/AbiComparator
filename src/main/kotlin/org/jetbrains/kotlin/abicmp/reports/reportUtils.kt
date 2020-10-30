@@ -1,6 +1,9 @@
 package org.jetbrains.kotlin.abicmp.reports
 
-import org.jetbrains.kotlin.abicmp.*
+import org.jetbrains.kotlin.abicmp.escapeHtml
+import org.jetbrains.kotlin.abicmp.table
+import org.jetbrains.kotlin.abicmp.tableData
+import org.jetbrains.kotlin.abicmp.tableHeader
 import java.io.PrintWriter
 
 fun String.withTag(tagName: String) = "<$tagName>$this</$tagName>"

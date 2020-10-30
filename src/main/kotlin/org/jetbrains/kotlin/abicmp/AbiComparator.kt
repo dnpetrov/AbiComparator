@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.abicmp.tasks.checkerConfiguration
 import java.io.File
 
 fun main() {
-    checkAtrium()
+    checkArrowCore()
 }
 
 private fun checkKotlin() {
@@ -19,7 +19,6 @@ private fun checkKotlin() {
     val header2 = "JVM_IR"
 
     val checkerConfiguration = checkerConfiguration {}
-
 
     val reportDir = File(reportPath)
     reportDir.deleteRecursively()
@@ -44,7 +43,6 @@ private fun checkAtrium() {
 
     val checkerConfiguration = checkerConfiguration {}
 
-
     val reportDir = File(reportPath)
     reportDir.deleteRecursively()
     reportDir.mkdirs()
@@ -55,4 +53,24 @@ private fun checkAtrium() {
     DirTask(File(dir1), File(dir2), id1, id2, header1, header2, reportDir, checkerConfiguration).run()
 }
 
+private fun checkArrowCore() {
+    val dir1 = "C:\\WORK\\jars-arrow_core-jvm"
+    val dir2 = "C:\\WORK\\jars-arrow_core-jvm-ir"
+    val id1: String? = null
+    val id2: String? = null
+    val reportPath = "C:\\WORK\\jars-arrow_core-report"
 
+    val header1 = "JVM"
+    val header2 = "JVM_IR"
+
+    val checkerConfiguration = checkerConfiguration {}
+
+    val reportDir = File(reportPath)
+    reportDir.deleteRecursively()
+    reportDir.mkdirs()
+
+    println("Checkers:")
+    println(checkerConfiguration.enabledCheckers.joinToString(separator = "\n") { " * ${it.name}" })
+
+    DirTask(File(dir1), File(dir2), id1, id2, header1, header2, reportDir, checkerConfiguration).run()
+}

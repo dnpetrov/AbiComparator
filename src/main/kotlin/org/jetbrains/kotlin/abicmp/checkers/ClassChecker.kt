@@ -1,6 +1,5 @@
 package org.jetbrains.kotlin.abicmp.checkers
 
-import org.jetbrains.kotlin.abicmp.compareAnnotations
 import org.jetbrains.kotlin.abicmp.reports.ClassReport
 import org.jetbrains.kotlin.abicmp.reports.NamedDiffEntry
 import org.objectweb.asm.tree.ClassNode

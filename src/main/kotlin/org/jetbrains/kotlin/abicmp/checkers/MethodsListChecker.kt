@@ -2,8 +2,6 @@ package org.jetbrains.kotlin.abicmp.checkers
 
 import org.jetbrains.kotlin.abicmp.defects.DefectType
 import org.jetbrains.kotlin.abicmp.defects.METHOD_A
-import org.jetbrains.kotlin.abicmp.defects.VALUE1_A
-import org.jetbrains.kotlin.abicmp.defects.VALUE2_A
 import org.jetbrains.kotlin.abicmp.isPrivate
 import org.jetbrains.kotlin.abicmp.isSynthetic
 import org.jetbrains.kotlin.abicmp.listOfNotNull

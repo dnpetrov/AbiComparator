@@ -1,8 +1,20 @@
-package org.jetbrains.kotlin.abicmp
+package org.jetbrains.kotlin.abicmp.checkers
 
+import jdk.internal.org.objectweb.asm.Type
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 import org.objectweb.asm.tree.AnnotationNode
 
 data class AnnotationEntry(val desc: String, val values: List<Pair<String, Any?>>)
+
+val NULLABILITY_ANNOTATIONS =
+        setOf(
+                Type.getDescriptor(NotNull::class.java),
+                Type.getDescriptor(Nullable::class.java)
+        )
+
+fun AnnotationEntry.isNullabilityAnnotation() =
+        desc in NULLABILITY_ANNOTATIONS
 
 fun List<Any?>?.toAnnotations() =
         this?.run {

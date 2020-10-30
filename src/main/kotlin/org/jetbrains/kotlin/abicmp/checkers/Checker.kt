@@ -3,7 +3,6 @@ package org.jetbrains.kotlin.abicmp.checkers
 import org.jetbrains.kotlin.abicmp.defects.DefectType
 import org.jetbrains.kotlin.abicmp.defects.VALUE1_A
 import org.jetbrains.kotlin.abicmp.defects.VALUE2_A
-import org.jetbrains.kotlin.abicmp.toAnnotations
 import org.jetbrains.kotlin.abicmp.toHtmlString
 import kotlin.reflect.KProperty1
 

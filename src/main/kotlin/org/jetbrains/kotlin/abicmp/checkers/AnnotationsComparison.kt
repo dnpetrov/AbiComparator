@@ -1,4 +1,4 @@
-package org.jetbrains.kotlin.abicmp
+package org.jetbrains.kotlin.abicmp.checkers
 
 import org.jetbrains.kotlin.abicmp.reports.ListEntryDiff
 import org.objectweb.asm.Type
