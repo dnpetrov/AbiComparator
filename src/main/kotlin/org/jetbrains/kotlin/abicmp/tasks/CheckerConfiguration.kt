@@ -29,7 +29,7 @@ val allMethodCheckers = listOf(
         methodPropertyChecker(MethodNode::access) { v -> "${v.toString(2)} ${v.methodFlags()}"},
         methodPropertyChecker("methodName", MethodNode::name),
         methodPropertyChecker(MethodNode::desc),
-        methodPropertyChecker(MethodNode::signature),
+        methodPropertyChecker(MethodNode::signature, ignoreOnEquallyInvisibleMethods = true),
         methodPropertyChecker("exceptions") { it.exceptions.listOfNotNull<String>().sorted() },
         methodPropertyChecker("annotationDefault") { it.annotationDefault?.toAnnotationArgumentValue() },
         MethodAnnotationsChecker(MethodNode::visibleAnnotations),
