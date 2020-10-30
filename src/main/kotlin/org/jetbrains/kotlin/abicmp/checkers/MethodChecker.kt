@@ -64,19 +64,26 @@ fun areEquallyInvisible(method1: MethodNode, method2: MethodNode) =
                 method1.access.isBridge() && method2.access.isBridge() ||
                 method1.name.contains('-') && method2.name.contains('-')
 
+fun List<AnnotationEntry>.ignoreMissingNullabilityAnnotationsOnMethod(
+        method1: MethodNode,
+        method2: MethodNode,
+        anns1: List<AnnotationEntry>
+) =
+        if (ignoreMissingNullabilityAnnotationsOnInvisibleMethods &&
+                areEquallyInvisible(method1, method2) &&
+                anns1.none { it.isNullabilityAnnotation() }
+        )
+            filterNot { it.isNullabilityAnnotation() }
+        else
+            this
+
 class MethodAnnotationsChecker(annotationsProperty: KProperty1<MethodNode, List<Any?>?>) :
         AnnotationsChecker<MethodNode>("method.${annotationsProperty.name}", annotationsProperty),
         MethodChecker {
 
     override fun check(method1: MethodNode, method2: MethodNode, report: MethodReport) {
         val anns1 = getAnnotations(method1)
-        var anns2 = getAnnotations(method2)
-        if (ignoreMissingNullabilityAnnotationsOnInvisibleMethods &&
-                areEquallyInvisible(method1, method2) &&
-                anns1.none { it.isNullabilityAnnotation() }
-        ) {
-            anns2 = anns2.filterNot { it.isNullabilityAnnotation() }
-        }
+        val anns2 = getAnnotations(method2).ignoreMissingNullabilityAnnotationsOnMethod(method1, method2, anns1)
         val annDiff = compareAnnotations(anns1, anns2) ?: return
         report.addAnnotationDiffs(this, annDiff)
     }
@@ -97,13 +104,8 @@ class MethodParameterAnnotationsChecker(
         val paramAnnsList2 = parameterAnnotationsProperty.get(method2)?.toList().orEmpty()
         for (i in 0 until max(paramAnnsList1.size, paramAnnsList2.size)) {
             val anns1 = paramAnnsList1.getOrElse(i) { emptyList() }.toAnnotations()
-            var anns2 = paramAnnsList2.getOrElse(i) { emptyList() }.toAnnotations()
-            if (ignoreMissingNullabilityAnnotationsOnInvisibleMethods &&
-                    areEquallyInvisible(method1, method2) &&
-                    anns1.none { it.isNullabilityAnnotation() }
-            ) {
-                anns2 = anns2.filterNot { it.isNullabilityAnnotation() }
-            }
+            val anns2 = paramAnnsList2.getOrElse(i) { emptyList() }.toAnnotations()
+                    .ignoreMissingNullabilityAnnotationsOnMethod(method1, method2, anns1)
             val annDiff = compareAnnotations(anns1, anns2) ?: continue
             report.addValueParameterAnnotationDiffs(this, i, annDiff)
         }
